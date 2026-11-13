@@ -1,0 +1,65 @@
+import Link from "next/link";
+import { Brand } from "./brand";
+import { Icon } from "./ui/icon";
+
+export function SiteFooter() {
+  return (
+    <footer className="site-footer">
+      <div className="shell">
+        <div className="footer-top">
+          <div className="footer-brand">
+            <Brand light />
+            <p>
+              Island roots. Honest sourcing.
+              <br />
+              Good seafood, brought closer.
+            </p>
+            <span className="footer-location">
+              <Icon name="pin" size={15} />
+              Bantayan Island, Cebu, Philippines
+            </span>
+          </div>
+          <div>
+            <h3>Explore</h3>
+            <Link href="/seafood">Our seafood</Link>
+            <Link href="/our-island">Our island</Link>
+            <Link href="/how-it-works">How it works</Link>
+          </div>
+          <div>
+            <h3>Let’s get started</h3>
+            <Link href="/request-quote">Request a quote</Link>
+            <Link href="/track">Track your request</Link>
+            <Link href="/how-it-works#questions">Common questions</Link>
+          </div>
+          <div className="footer-note">
+            <p>
+              A little closer
+              <br />
+              to the island.
+            </p>
+            <svg
+              width="116"
+              height="24"
+              viewBox="0 0 116 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M1 12c10-14 18 14 28 0s18 14 28 0 18 14 28 0 18 14 28 0"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
+            </svg>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <span>© 2026 Bantayan Seafoods. From the island, with care.</span>
+          <span>Customer experience prototype · No live payments</span>
+          <Link href="/track">
+            Guest access <Icon name="arrow" size={13} />
+          </Link>
+        </div>
+      </div>
+    </footer>
+  );
+}

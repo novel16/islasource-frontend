@@ -1,0 +1,120 @@
+import Image from "next/image";
+import { Breadcrumb, ButtonLink, Eyebrow } from "@/components/ui/shared";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata(
+  "How it works",
+  "From a guest quote request to seafood sourcing, quotation approval, deposit, and delivery. Understand how Bantayan Seafoods sources on demand.",
+  "/how-it-works",
+);
+const steps = [
+  {
+    title: "Tell us what sounds good.",
+    description:
+      "Browse fresh, frozen, and dried favorites. Add the quantities and preparation you prefer, or make a custom request. Share your contact details and delivery location—no account needed.",
+  },
+  {
+    title: "We check with the island.",
+    description:
+      "We don’t keep our own seafood stock. Once you request, we check with local fishing and producing partners for the catch, specifications, and current pricing. Availability depends on what our partners can source.",
+  },
+  {
+    title: "A quote. A clear yes.",
+    description:
+      "You receive a personal quotation with the seafood specifications, quantities, current prices, delivery fee, validity period, and deposit terms. Review everything before you decide. No commitment until you approve.",
+  },
+  {
+    title: "We take it from there.",
+    description:
+      "After you approve the quotation and arrange the agreed deposit, we begin procurement. Your request reference keeps you connected through sourcing, packing, and delivery. Any balance is settled according to your quotation.",
+  },
+];
+const questions = [
+  {
+    q: "Why aren’t prices listed in the catalog?",
+    a: "Our seafood is sourced on request. Catch, size, preparation, and supplier prices can change, so we confirm current availability and prepare a quotation for your specific request. A catalog listing does not guarantee stock.",
+  },
+  {
+    q: "Do I need an account to request seafood?",
+    a: "No. Browse, build your selection, and send a guest request with your name, email, mobile number, and delivery location. You can return using your request reference and email. This prototype lets you try a demo lookup or find a request saved in this browser.",
+  },
+  {
+    q: "Can I request something that isn’t in the catalog?",
+    a: "Yes. Add a custom item on the quote request page, including the quantity and any preferred size or preparation. We’ll ask our partners and confirm whether it can be sourced.",
+  },
+  {
+    q: "Where do you deliver?",
+    a: "Tell us your city or municipality and province when you request. Delivery coverage, the fee, and a suitable schedule are confirmed in your personal quotation before you approve or pay a deposit.",
+  },
+  {
+    q: "When do I pay?",
+    a: "There’s no payment to request a quote. After you review and approve a quotation, the agreed deposit starts procurement. The sample experience shows a 50% deposit with the balance before dispatch. Real terms will always be stated in your quotation.",
+  },
+  {
+    q: "Can I make a real order through this website?",
+    a: "This is an interactive customer experience prototype. Requests are stored only in this browser, quotations contain illustrative prices, and the payment screen is nonpayable. No real sourcing, email, payment, or delivery is triggered.",
+  },
+];
+export default function HowItWorksPage() {
+  return (
+    <div className="shell page-content">
+      <Breadcrumb current="How it works" />
+      <section className="editorial-hero">
+        <div>
+          <Eyebrow>GOOD SEAFOOD. SIMPLE STEPS.</Eyebrow>
+          <h1>
+            Island connections.
+            <br />
+            <em>Made simple.</em>
+          </h1>
+          <p>
+            We believe good seafood should start with a good conversation. Tell
+            us what you need, and we’ll connect the dots between the island and
+            your table.
+          </p>
+          <ButtonLink href="/seafood" arrow>
+            Find your island favorites
+          </ButtonLink>
+        </div>
+        <div className="editorial-image">
+          <Image
+            src="/images/hero-seafood.jpg"
+            alt="A generous spread of seafood, ready to inspire your next meal"
+            fill
+            priority
+            sizes="(max-width: 760px) 90vw, 46vw"
+          />
+        </div>
+      </section>
+      <div className="steps-list">
+        {steps.map((step, i) => (
+          <article className="step-card" key={step.title}>
+            <span>0{i + 1}</span>
+            <div>
+              <h2>{step.title}</h2>
+              <p>{step.description}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <section className="questions-section" id="questions">
+        <div>
+          <Eyebrow>A FEW THINGS TO KNOW</Eyebrow>
+          <h2>
+            Good questions.
+            <br />
+            Honest answers.
+          </h2>
+        </div>
+        <div className="faq-list">
+          {questions.map((question) => (
+            <details key={question.q}>
+              <summary>{question.q}</summary>
+              <p>{question.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
