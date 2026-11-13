@@ -15,10 +15,10 @@ export function pageMetadata(
     description,
     alternates: { canonical: `${siteUrl}${path}` },
     openGraph: {
-      title: `${title} | Bantayan Seafoods`,
+      title: `${title} | IslaSource Seafoods`,
       description,
       url: `${siteUrl}${path}`,
-      siteName: "Bantayan Seafoods",
+      siteName: "IslaSource Seafoods",
       type: "website",
       locale: "en_PH",
       images: [{ url: image, width: 1200, height: 800 }],

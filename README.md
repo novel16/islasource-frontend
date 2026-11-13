@@ -1,4 +1,4 @@
-# Bantayan Seafoods customer prototype
+# IslaSource Seafoods customer prototype
 
 A responsive Next.js 16.4.6 App Router storefront for seafood sourced on request. This is a clickable prototype: no Laravel calls, customer accounts, supplier messages, live payment APIs, or real orders.
 
@@ -27,7 +27,7 @@ The public sample is `RFQ-2026-001` / `maia.reyes@example.com`, with 5 kg dried 
 
 ## Routes and structure
 
-Public pages: `/`, `/seafood`, `/seafood/[slug]`, `/how-it-works`, `/our-island`. The sitemap contains only these public routes. Each has unique metadata and canonical/Open Graph data.
+Public pages: `/`, `/seafood`, `/seafood/[slug]`, `/how-it-works`, `/about`. The homepage introduces IslaSource as a seafood sourcing and resale business. About us explains direct supplier sourcing, no own stocked inventory, competitive quote-based pricing, and supplier-confirmed availability. The former `/our-island` URL permanently redirects to `/about`. The sitemap contains only the current public routes. Each has unique metadata and canonical/Open Graph data.
 
 Guest/demo pages: `/request-quote`, `/request-received`, `/track`, `/quote/[reference]`, `/payment/[reference]`, `/order/[reference]`. These pages have noindex metadata and are excluded by `robots.txt`.
 

@@ -8,11 +8,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Bantayan Seafoods | Good seafood. Straight from the island.",
-    template: "%s | Bantayan Seafoods",
+    default: "IslaSource Seafoods | Seafood Sourcing & Resale",
+    template: "%s | IslaSource Seafoods",
   },
   description:
-    "Seafood sourced on request from Bantayan Island’s local fishermen and producers. Fresh, frozen, and dried favorites, delivered with care.",
+    "IslaSource Seafoods sources fresh, frozen, and dried seafood directly from local suppliers upon your quote request. No own stocked inventory; prices and availability are confirmed per request.",
   icons: { icon: "/icon.svg" },
 };
 export default function RootLayout({

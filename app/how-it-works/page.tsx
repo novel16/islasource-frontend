@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata(
   "How it works",
-  "From a guest quote request to seafood sourcing, quotation approval, deposit, and delivery. Understand how Bantayan Seafoods sources on demand.",
+  "From a guest quote request to supplier sourcing, quotation approval, deposit, and delivery. Understand how IslaSource Seafoods sources on demand without keeping its own stocks.",
   "/how-it-works",
 );
 const steps = [
@@ -30,6 +30,18 @@ const steps = [
   },
 ];
 const questions = [
+  {
+    q: "Who is IslaSource Seafoods?",
+    a: "We’re a seafood sourcing and resale business based in Bantayan Island, Cebu. We source directly from local fishermen and seafood suppliers in response to customer quote requests. We don’t keep our own seafood inventory.",
+  },
+  {
+    q: "Is every seafood product always available?",
+    a: "No. We check supplier availability after you request a quote. Catch, size, grade, and quantities can vary, so a catalog listing is a sourcing option rather than a promise of ready stock.",
+  },
+  {
+    q: "How do you aim to keep prices affordable?",
+    a: "We work directly with suppliers and buy to order, aiming for fair, competitive pricing. Your final quotation depends on the seafood, quantity, preparation, packing, and delivery arrangements.",
+  },
   {
     q: "Why aren’t prices listed in the catalog?",
     a: "Our seafood is sourced on request. Catch, size, preparation, and supplier prices can change, so we confirm current availability and prepare a quotation for your specific request. A catalog listing does not guarantee stock.",

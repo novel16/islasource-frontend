@@ -5,7 +5,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = {
   ...pageMetadata(
     "Request a seafood quote",
-    "Build your seafood request, tell us your delivery location, and receive a personal quotation from Bantayan Seafoods. No account or upfront payment needed.",
+    "Build your seafood request, tell us your delivery location, and receive a personal quotation from IslaSource Seafoods. No account or upfront payment needed.",
     "/request-quote",
   ),
   robots: { index: false, follow: false },

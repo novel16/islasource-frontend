@@ -8,9 +8,10 @@ import { Icon } from "./ui/icon";
 import { useDemo } from "./demo-provider";
 
 const navigation = [
+  { href: "/", label: "Home" },
   { href: "/seafood", label: "Our seafood" },
   { href: "/how-it-works", label: "How it works" },
-  { href: "/our-island", label: "Our island" },
+  { href: "/about", label: "About us" },
 ];
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -25,7 +26,11 @@ export function SiteHeader() {
             <Link
               key={item.href}
               href={item.href}
-              className={path.startsWith(item.href) ? "active" : ""}
+              className={
+                (item.href === "/" ? path === "/" : path.startsWith(item.href))
+                  ? "active"
+                  : ""
+              }
             >
               {item.label}
             </Link>

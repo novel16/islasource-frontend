@@ -6,29 +6,32 @@ import { ButtonLink, Eyebrow } from "@/components/ui/shared";
 import { Icon } from "@/components/ui/icon";
 import { WaveMark } from "@/components/brand";
 
-export const metadata = pageMetadata(
-  "Good seafood. Straight from the island.",
-  "Fresh, frozen, and dried seafood sourced to your request from Bantayan Island’s local fishermen and producers. No account needed. Start with a quote.",
-  "/",
-);
+export const metadata = {
+  ...pageMetadata(
+    "Island seafood, sourced for you",
+    "IslaSource Seafoods is your seafood sourcing and resale partner in Bantayan Island, Cebu. Direct supplier sourcing, competitive quotes, and availability confirmed for your request.",
+    "/",
+  ),
+  title: { absolute: "IslaSource Seafoods | Seafood Sourcing & Resale" },
+};
 
 export default function Home() {
   return (
     <>
       <section className="hero shell">
         <div className="hero-copy">
-          <Eyebrow>DIRECT FROM BANTAYAN ISLAND</Eyebrow>
+          <Eyebrow>SEAFOOD SOURCING & RESALE</Eyebrow>
           <h1>
-            Good seafood.
+            Island seafood.
             <br />
-            Straight from
+            Sourced
             <br />
-            <em>the island.</em>
+            <em>for you.</em>
           </h1>
           <p>
-            A taste of Bantayan, without the boat ride. We connect you with the
-            island’s fishermen and producers, sourcing good seafood only when
-            you need it.
+            Meet IslaSource Seafoods. We source directly from local fishermen
+            and seafood suppliers after your quote request, then arrange your
+            order and delivery. Island connections, with fair pricing in mind.
           </p>
           <div className="button-row">
             <ButtonLink href="/seafood" arrow>
@@ -42,7 +45,7 @@ export default function Home() {
             <span className="tiny-wave">≈</span>
             <span>
               Fresh. Frozen. Dried.{" "}
-              <strong>Always thoughtfully sourced.</strong>
+              <strong>Sourced on request. Quoted with care.</strong>
             </span>
           </div>
         </div>
@@ -75,22 +78,22 @@ export default function Home() {
         <div>
           <Icon name="fish" size={29} />
           <span>
-            <strong>Sourced, not stocked.</strong>
-            <small>From local partners, for your request.</small>
+            <strong>No own seafood stocks.</strong>
+            <small>We start sourcing after your request.</small>
           </span>
         </div>
         <div>
           <Icon name="shield" size={28} />
           <span>
-            <strong>A clear quote. No surprises.</strong>
-            <small>Know the details before you commit.</small>
+            <strong>Direct supplier connections.</strong>
+            <small>Competitive quotes for your needs.</small>
           </span>
         </div>
         <div>
           <Icon name="truck" size={30} />
           <span>
-            <strong>Island to your doorstep.</strong>
-            <small>Delivery arranged with care.</small>
+            <strong>Availability confirmed first.</strong>
+            <small>Catch and supply can vary each day.</small>
           </span>
         </div>
       </div>
@@ -190,26 +193,33 @@ export default function Home() {
           </span>
         </div>
         <div className="island-story-copy">
-          <Eyebrow>SMALL ISLAND. DEEP ROOTS.</Eyebrow>
+          <Eyebrow>ABOUT ISLASOURCE SEAFOODS</Eyebrow>
           <h2>
-            There’s a place
+            Your connection
             <br />
-            behind every plate.
+            to the source.
           </h2>
           <p>
-            On Bantayan, the sea is part of everyday life. It shapes the
-            mornings, the meals, and the work of the people who call this island
-            home.
+            We’re a seafood sourcing and resale business based in Bantayan
+            Island, Cebu. We work directly with local fishermen and suppliers to
+            find seafood for home cooks, restaurants, and resellers.
           </p>
           <p>
-            We’re here to share that connection. Working with local fishermen
-            and seafood producers, we bring the island a little closer—one
-            thoughtful request at a time.
+            We don’t keep our own seafood inventory. After your quote request,
+            we check supplier availability, product condition, and current
+            pricing. You review the details before we procure your order.
           </p>
-          <ButtonLink href="/our-island" variant="text" arrow>
-            Get to know our island
+          <p>
+            Buying to order and working directly with suppliers helps us aim for
+            affordable, competitive quotes. Final prices and supply are
+            confirmed for each request.
+          </p>
+          <ButtonLink href="/about" variant="text" arrow>
+            Get to know IslaSource
           </ButtonLink>
-          <span className="story-signature">From Bantayan, with care.</span>
+          <span className="story-signature">
+            Sourced on request. Quoted with care.
+          </span>
         </div>
       </section>
       <section className="home-cta">

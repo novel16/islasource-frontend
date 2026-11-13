@@ -7,7 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/seafood",
     "/how-it-works",
-    "/our-island",
+    "/about",
     ...products.map((product) => `/seafood/${product.slug}`),
   ].map((path) => ({
     url: `${siteUrl}${path}`,

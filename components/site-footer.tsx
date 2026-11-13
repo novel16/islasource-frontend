@@ -10,9 +10,9 @@ export function SiteFooter() {
           <div className="footer-brand">
             <Brand light />
             <p>
-              Island roots. Honest sourcing.
+              Sourced on request.
               <br />
-              Good seafood, brought closer.
+              Quoted with care.
             </p>
             <span className="footer-location">
               <Icon name="pin" size={15} />
@@ -21,8 +21,9 @@ export function SiteFooter() {
           </div>
           <div>
             <h3>Explore</h3>
+            <Link href="/">Home</Link>
             <Link href="/seafood">Our seafood</Link>
-            <Link href="/our-island">Our island</Link>
+            <Link href="/about">About us</Link>
             <Link href="/how-it-works">How it works</Link>
           </div>
           <div>
@@ -53,7 +54,9 @@ export function SiteFooter() {
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© 2026 Bantayan Seafoods. From the island, with care.</span>
+          <span>
+            © 2026 IslaSource Seafoods. Your connection to the source.
+          </span>
           <span>Customer experience prototype · No live payments</span>
           <Link href="/track">
             Guest access <Icon name="arrow" size={13} />

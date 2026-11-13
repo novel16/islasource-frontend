@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Bantayan Seafoods — public frontend
+# IslaSource Seafoods — public frontend
 
 ## Required workflow
 - Use the installed **Ponytail** skill for coding, refactoring, dependency choices, and reviews. Read its current `SKILL.md`; prefer native features, existing dependencies, and the smallest maintainable implementation.
@@ -17,6 +17,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Read existing files before editing. Preserve unrelated work. Verify changes with the existing lint/build commands and report any check that could not run.
 
 ## Scope and business rules
+- The customer-facing brand is **IslaSource Seafoods**. Bantayan Island is our location and sourcing origin, not the business name. Position the business as seafood sourcing and resale; explain no own stocked inventory and supplier-confirmed availability. Use “About us” at `/about` and preserve the `/our-island` redirect. Present affordable pricing as an aim, without absolute cheapest/freshness/availability guarantees.
 - This folder is the Next.js public storefront. `../admin` is the separate admin app; `../api` is the Laravel API.
 - Customers do **not** need to sign up or log in. Keep browsing, quote requests, quote viewing, and order tracking accessible as guest flows.
 - This is on-demand seafood sourcing: no public fixed prices or guaranteed inventory. Use a quote-request basket, not immediate purchase checkout.

@@ -24,11 +24,11 @@ export function Brand({ light = false }: { light?: boolean }) {
     <Link
       href="/"
       className={`brand${light ? " brand-light" : ""}`}
-      aria-label="Bantayan Seafoods home"
+      aria-label="IslaSource Seafoods home"
     >
       <WaveMark />
       <span>
-        Bantayan<span className="brand-small">SEAFOODS</span>
+        IslaSource<span className="brand-small">SEAFOODS</span>
       </span>
     </Link>
   );
