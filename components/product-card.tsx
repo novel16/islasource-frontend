@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Product } from "@/lib/products";
+import { productImageSrc, type Product } from "@/lib/products";
 import { Badge } from "./ui/shared";
 import { Icon } from "./ui/icon";
 
@@ -13,15 +13,16 @@ export function ProductCard({ product }: { product: Product }) {
         aria-label={`View ${product.name}`}
       >
         <Image
-          src={product.image}
-          alt={product.imageAlt}
+          src={productImageSrc(product.image)}
+          alt={product.image_alt}
           fill
+          unoptimized={product.image.startsWith("/storage/")}
           sizes="(max-width: 600px) 90vw, (max-width: 1000px) 45vw, 25vw"
         />
         <Badge>
-          {product.category === "Dried" ? (
+          {product.category === "Dried seafood" ? (
             <Icon name="sun" size={12} />
-          ) : product.category === "Frozen" ? (
+          ) : product.category === "Frozen seafood" ? (
             <Icon name="snow" size={12} />
           ) : (
             <Icon name="fish" size={13} />
@@ -33,7 +34,7 @@ export function ProductCard({ product }: { product: Product }) {
         </span>
       </Link>
       <div className="product-card-body">
-        <span className="product-local">{product.localName}</span>
+        <span className="product-local">{product.category}</span>
         <h3>
           <Link href={`/seafood/${product.slug}`}>{product.name}</Link>
         </h3>

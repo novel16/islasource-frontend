@@ -29,7 +29,7 @@ export function SiteFooter() {
           <div>
             <h3>Let’s get started</h3>
             <Link href="/request-quote">Request a quote</Link>
-            <Link href="/track">Track your request</Link>
+            <span>Request tracking is being prepared</span>
             <Link href="/how-it-works#questions">Common questions</Link>
           </div>
           <div className="footer-note">
@@ -57,10 +57,8 @@ export function SiteFooter() {
           <span>
             © 2026 IslaSource Seafoods. Your connection to the source.
           </span>
-          <span>Customer experience prototype · No live payments</span>
-          <Link href="/track">
-            Guest access <Icon name="arrow" size={13} />
-          </Link>
+          <span>Live quote requests · Online payments are not enabled</span>
+          <span>Guest quote requests</span>
         </div>
       </div>
     </footer>

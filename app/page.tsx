@@ -1,5 +1,7 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
 import Image from "next/image";
-import { products } from "@/lib/products";
+import { getPublicProducts, type Product } from "@/lib/products";
 import { pageMetadata } from "@/lib/seo";
 import { ProductCard } from "@/components/product-card";
 import { ButtonLink, Eyebrow } from "@/components/ui/shared";
@@ -108,11 +110,9 @@ export default function Home() {
           </ButtonLink>
         </div>
         <div className="product-grid">
-          {products
-            .filter((product) => product.featured)
-            .map((product) => (
-              <ProductCard key={product.slug} product={product} />
-            ))}
+          <Suspense fallback={<p className="loading-text">Loading published seafood…</p>}>
+            <FeaturedProducts />
+          </Suspense>
         </div>
         <p className="catalog-disclaimer">
           <span />
@@ -244,4 +244,21 @@ export default function Home() {
       </section>
     </>
   );
+}
+
+async function FeaturedProducts() {
+  await connection();
+  let products: Product[] | null = null;
+  try {
+    products = (await getPublicProducts({ perPage: 4 })).data;
+  } catch {
+    products = null;
+  }
+  if (products === null)
+    return <p className="loading-text">The seafood catalog is temporarily unavailable.</p>;
+  if (!products.length)
+    return <p className="loading-text">Published seafood will appear here when available.</p>;
+  return products.map((product) => (
+    <ProductCard key={product.id} product={product} />
+  ));
 }

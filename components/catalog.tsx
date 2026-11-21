@@ -1,18 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { products, type Category } from "@/lib/products";
+import type { Product, ProductCategory } from "@/lib/products";
 import { ProductCard } from "./product-card";
 import { Icon } from "./ui/icon";
 import { ButtonLink } from "./ui/shared";
 
-export function Catalog() {
-  const [category, setCategory] = useState<Category | "All">("All");
+export function Catalog({ products }: { products: Product[] }) {
+  const [category, setCategory] = useState<ProductCategory | "All">("All");
   const [query, setQuery] = useState("");
+  const categories = [...new Set(products.map((product) => product.category))];
   const matches = products.filter(
     (product) =>
       (category === "All" || product.category === category) &&
-      `${product.name} ${product.localName}`
+      `${product.name} ${product.category} ${product.specs}`
         .toLowerCase()
         .includes(query.toLowerCase().trim()),
   );
@@ -20,19 +21,18 @@ export function Catalog() {
     <>
       <div className="catalog-toolbar">
         <div className="filter-tabs" role="group" aria-label="Seafood category">
-          {(["All", "Fresh", "Frozen", "Dried"] as const).map((item) => (
+          {(["All", ...categories] as const).map((item) => (
             <button
               key={item}
               onClick={() => setCategory(item)}
               aria-pressed={category === item}
               className={category === item ? "selected" : ""}
             >
-              {item === "All" ? "All seafood" : item}
+              {item === "All" ? "All seafood" : item.replace(" seafood", "")}
               <span>
                 {item === "All"
                   ? products.length
-                  : products.filter((product) => product.category === item)
-                      .length}
+                  : products.filter((product) => product.category === item).length}
               </span>
             </button>
           ))}
@@ -54,7 +54,7 @@ export function Catalog() {
       </div>
       <p className="result-count" aria-live="polite">
         {matches.length}{" "}
-        {matches.length === 1 ? "island favorite" : "island favorites"} to
+        {matches.length === 1 ? "seafood option" : "seafood options"} to
         explore · Availability confirmed with every request
       </p>
       {matches.length ? (

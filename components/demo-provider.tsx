@@ -52,6 +52,7 @@ type DemoContextValue = {
   addItem: (item: BasketItem) => void;
   updateItem: (id: string, quantity: number) => void;
   removeItem: (id: string) => void;
+  clearBasket: () => void;
   submitRequest: (guest: Guest) => string;
   getRequest: (reference: string) => Request | undefined;
   updateStatus: (reference: string, status: Request["status"]) => void;
@@ -132,6 +133,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
             ...data,
             basket: data.basket.filter((item) => item.id !== id),
           }),
+        clearBasket: () => write({ ...data, basket: [] }),
         submitRequest,
         getRequest,
         updateStatus,

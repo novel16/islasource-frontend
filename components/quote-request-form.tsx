@@ -3,19 +3,21 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { productItem, validQuantity, type Guest } from "@/lib/demo";
+import { validQuantity, type Guest } from "@/lib/demo";
+import { PublicApiError, submitGuestQuote } from "@/lib/products";
 import { useDemo } from "./demo-provider";
-import { ButtonLink, DemoNotice, Field } from "./ui/shared";
+import { ButtonLink, Field } from "./ui/shared";
 import { Icon } from "./ui/icon";
 
 export function QuoteRequestForm() {
-  const { data, ready, addItem, updateItem, removeItem, submitRequest } =
+  const { data, ready, addItem, updateItem, removeItem, clearBasket } =
     useDemo();
   const router = useRouter();
   const [customName, setCustomName] = useState("");
   const [customQuantity, setCustomQuantity] = useState(1);
   const [customNotes, setCustomNotes] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   function addCustom(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!customName.trim() || !validQuantity(customQuantity)) return;
@@ -30,9 +32,9 @@ export function QuoteRequestForm() {
     setCustomName("");
     setCustomNotes("");
   }
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!data.basket.length) return;
+    if (!data.basket.length || submitting) return;
     const form = new FormData(event.currentTarget);
     const guest: Guest = {
       name: String(form.get("name")).trim(),
@@ -43,12 +45,39 @@ export function QuoteRequestForm() {
       notes: String(form.get("notes") || "").trim(),
     };
     if (!guest.name || !guest.email || !guest.phone || !guest.location) return;
-    submitRequest(guest);
-    router.push("/request-received");
+    setSubmitting(true);
+    setFeedback("");
+    try {
+      const result = await submitGuestQuote({
+        customer_name: guest.name,
+        email: guest.email,
+        phone: guest.phone,
+        location: guest.location,
+        requested_delivery_date: guest.date || null,
+        notes: guest.notes,
+        terms_accepted: true,
+        items: data.basket.map((item) => ({
+          product_id: item.productId ?? null,
+          name: item.name,
+          quantity: item.quantity,
+          unit: item.unit,
+          notes: item.notes,
+        })),
+      });
+      clearBasket();
+      router.push(`/request-received?reference=${encodeURIComponent(result.reference)}`);
+    } catch (error) {
+      const detail =
+        error instanceof PublicApiError
+          ? Object.values(error.errors).flat()[0] || error.message
+          : "We couldn’t send your request. Please try again.";
+      setFeedback(detail);
+    } finally {
+      setSubmitting(false);
+    }
   }
   return (
     <>
-      <DemoNotice />
       <div className="request-layout">
         <div>
           <div className="panel basket-panel">
@@ -89,17 +118,19 @@ export function QuoteRequestForm() {
                           </span>
                           <input
                             type="number"
-                            min="0.5"
+                            min={item.minimumQuantity ?? 0.5}
                             max="1000"
-                            step="0.5"
+                            step={item.unit === "kg" ? "0.001" : "1"}
                             value={item.quantity}
                             onChange={(event) => {
                               const value = Number(event.target.value);
-                              if (validQuantity(value))
+                              if (
+                                validQuantity(value, item.minimumQuantity ?? 0.5)
+                              )
                                 updateItem(item.id, value);
                             }}
                           />
-                          <span>kg</span>
+                          <span>{item.unit}</span>
                         </label>
                         <button
                           type="button"
@@ -126,16 +157,6 @@ export function QuoteRequestForm() {
                 <ButtonLink href="/seafood" arrow>
                   Explore seafood
                 </ButtonLink>
-                <button
-                  type="button"
-                  className="text-button sample-selection"
-                  onClick={() => {
-                    const item = productItem("dried-squid", 5, "Medium size");
-                    if (item) addItem(item);
-                  }}
-                >
-                  Try the demo with 5 kg dried squid
-                </button>
               </div>
             )}
             <div className="basket-reassurance">
@@ -222,7 +243,7 @@ export function QuoteRequestForm() {
           <Field
             label="Email address *"
             id="guest-email"
-            hint="Use this email with your reference to find your demo request."
+            hint="We’ll use this email if we need to clarify your request."
           >
             <input
               id="guest-email"
@@ -276,19 +297,24 @@ export function QuoteRequestForm() {
             />
           </Field>
           <label className="checkbox-label">
-            <input type="checkbox" required />
+            <input type="checkbox" name="terms_accepted" value="1" required />
             <span>
               I understand prices and availability will be confirmed before I
               make any commitment.
             </span>
           </label>
+          {feedback && (
+            <p className="form-error" role="alert">
+              {feedback}
+            </p>
+          )}
           <button
             type="submit"
             className="button button-primary full-width"
-            disabled={!ready || !data.basket.length}
+            disabled={!ready || !data.basket.length || submitting}
           >
-            Send quote request
-            <Icon name="arrow" size={18} />
+            {submitting ? "Sending request…" : "Send quote request"}
+            {!submitting && <Icon name="arrow" size={18} />}
           </button>
           <p className="small-note centered">
             <Icon name="shield" size={15} />

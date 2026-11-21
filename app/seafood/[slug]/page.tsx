@@ -1,30 +1,68 @@
 import Image from "next/image";
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
-import { products, getProduct } from "@/lib/products";
-import { pageMetadata } from "@/lib/seo";
-import { Badge, Breadcrumb, Eyebrow } from "@/components/ui/shared";
+import { connection } from "next/server";
+import { notFound, permanentRedirect } from "next/navigation";
+import type { Metadata } from "next";
+import {
+  getPublicProduct,
+  getPublicProducts,
+  productImageSrc,
+  PublicApiError,
+  type Product,
+} from "@/lib/products";
+import { pageMetadata, siteUrl } from "@/lib/seo";
+import { Badge, Breadcrumb, ButtonLink, Eyebrow } from "@/components/ui/shared";
 import { ProductRequest } from "@/components/product-request";
 import { ProductCard } from "@/components/product-card";
 import { Icon } from "@/components/ui/icon";
 
+const runtimeSlug = "__runtime__";
+
 export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
+  return [{ slug: runtimeSlug }];
 }
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
-}) {
-  const product = getProduct((await params).slug);
-  if (!product) return {};
-  return pageMetadata(
-    product.seoTitle,
-    product.description,
-    `/seafood/${product.slug}`,
-    product.image,
-  );
+}): Promise<Metadata> {
+  const { slug } = await params;
+  if (slug === runtimeSlug) return {};
+
+  try {
+    const product = await getPublicProduct(slug);
+    const title = product.meta_title || product.name;
+    const description = product.meta_description || product.description;
+    const canonical =
+      product.canonical_url || `${siteUrl}/seafood/${product.slug}`;
+    const image = productImageSrc(product.og_image || product.image);
+    const base = pageMetadata(
+      title,
+      description,
+      `/seafood/${product.slug}`,
+      image,
+    );
+
+    return {
+      ...base,
+      title,
+      description,
+      alternates: { canonical },
+      robots: product.indexable ? undefined : { index: false, follow: false },
+      openGraph: {
+        ...base.openGraph,
+        title: product.og_title || title,
+        description: product.og_description || description,
+        url: canonical,
+        images: [{ url: image, alt: product.image_alt }],
+      },
+    };
+  } catch {
+    return { title: "Seafood listing unavailable", robots: { index: false } };
+  }
 }
+
 export default function ProductPage({
   params,
 }: {
@@ -42,13 +80,42 @@ export default function ProductPage({
     </Suspense>
   );
 }
+
 async function ProductDetails({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const product = getProduct((await params).slug);
-  if (!product) notFound();
+  await connection();
+  const { slug } = await params;
+  let product: Product;
+  try {
+    product = await getPublicProduct(slug);
+  } catch (error) {
+    if (error instanceof PublicApiError && error.status === 404) notFound();
+    return (
+      <div className="shell page-content empty-state">
+        <h1>Seafood details are temporarily unavailable</h1>
+        <p>Please try again in a little while.</p>
+        <ButtonLink href={`/seafood/${slug}`} variant="outline">Try again</ButtonLink>
+      </div>
+    );
+  }
+
+  if (product.slug !== slug) {
+    permanentRedirect(`/seafood/${product.slug}`);
+  }
+
+  let related: Product[] = [];
+  try {
+    related = (await getPublicProducts({ perPage: 5 })).data
+      .filter((item) => item.id !== product.id)
+      .slice(0, 4);
+  } catch {
+    related = [];
+  }
+
+  const image = productImageSrc(product.image);
   return (
     <div className="shell page-content">
       <Breadcrumb
@@ -58,10 +125,11 @@ async function ProductDetails({
       <div className="product-detail">
         <div className="product-detail-image">
           <Image
-            src={product.image}
-            alt={product.imageAlt}
+            src={image}
+            alt={product.image_alt}
             fill
             priority
+            unoptimized={product.image.startsWith("/storage/")}
             sizes="(max-width: 760px) 90vw, 47vw"
           />
           <Badge>{product.category} · Bantayan Island</Badge>
@@ -70,24 +138,24 @@ async function ProductDetails({
           </span>
         </div>
         <div className="product-detail-copy">
-          <Eyebrow>{product.localName.toUpperCase()} · ISLAND FAVORITE</Eyebrow>
+          <Eyebrow>{product.category.toUpperCase()} · ISLAND SELECTION</Eyebrow>
           <h1>{product.name}</h1>
           <p className="product-description">{product.description}</p>
           <div className="product-price-note">
             <strong>Price on request</strong>
             <span>
               <span className="status-dot" />
-              Availability confirmed by our partners
+              {product.availability_note || "Availability confirmed by our partners"}
             </span>
           </div>
           <dl className="product-specs">
             <div>
-              <dt>Size & grade</dt>
-              <dd>{product.size}</dd>
+              <dt>Specifications &amp; packing</dt>
+              <dd>{product.specs || "Confirmed with the supplier for each request."}</dd>
             </div>
             <div>
-              <dt>Preparation</dt>
-              <dd>{product.preparation}</dd>
+              <dt>Minimum request</dt>
+              <dd>{Number(product.min_order_quantity)} {product.unit}</dd>
             </div>
             <div>
               <dt>Origin</dt>
@@ -95,7 +163,7 @@ async function ProductDetails({
             </div>
             <div>
               <dt>Sourcing</dt>
-              <dd>On request · no ready stock guaranteed</dd>
+              <dd>On request · supply is not guaranteed</dd>
             </div>
           </dl>
           <ProductRequest product={product} />
@@ -105,22 +173,21 @@ async function ProductDetails({
           </p>
         </div>
       </div>
-      <section className="related-products">
-        <div className="section-heading">
-          <div>
-            <Eyebrow>MAKE IT AN ISLAND SPREAD</Eyebrow>
-            <h2>A few more good things.</h2>
+      {related.length > 0 && (
+        <section className="related-products">
+          <div className="section-heading">
+            <div>
+              <Eyebrow>MAKE IT AN ISLAND SPREAD</Eyebrow>
+              <h2>A few more good things.</h2>
+            </div>
           </div>
-        </div>
-        <div className="product-grid">
-          {products
-            .filter((item) => item.slug !== product.slug)
-            .slice(0, 4)
-            .map((item) => (
-              <ProductCard key={item.slug} product={item} />
+          <div className="product-grid">
+            {related.map((item) => (
+              <ProductCard key={item.id} product={item} />
             ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

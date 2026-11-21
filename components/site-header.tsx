@@ -37,10 +37,6 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="header-actions">
-          <Link href="/track" className="track-link">
-            <Icon name="pin" size={16} />
-            Track request
-          </Link>
           <Link
             href="/request-quote"
             className="button button-mint header-quote"
@@ -71,7 +67,6 @@ export function SiteHeader() {
         >
           {[
             ...navigation,
-            { href: "/track", label: "Track request" },
             { href: "/request-quote", label: "Request a quote" },
           ].map((item) => (
             <Link

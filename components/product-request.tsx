@@ -1,25 +1,34 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import type { Product } from "@/lib/products";
-import { productItem, validQuantity } from "@/lib/demo";
+import { productImageSrc, type Product } from "@/lib/products";
+import { validQuantity } from "@/lib/demo";
 import { useDemo } from "./demo-provider";
 import { ButtonLink, Field } from "./ui/shared";
 import { Icon } from "./ui/icon";
 
 export function ProductRequest({ product }: { product: Product }) {
-  const [quantity, setQuantity] = useState(1);
+  const minimum = Number(product.min_order_quantity) || 1;
+  const step = product.unit === "kg" ? 0.5 : 1;
+  const [quantity, setQuantity] = useState(minimum);
   const [notes, setNotes] = useState("");
   const [added, setAdded] = useState(false);
   const { addItem } = useDemo();
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!validQuantity(quantity)) return;
-    const item = productItem(product.slug, quantity, notes);
-    if (item) {
-      addItem(item);
-      setAdded(true);
-    }
+    if (!validQuantity(quantity, minimum)) return;
+    addItem({
+      id: `product-${product.id}`,
+      productId: product.id,
+      slug: product.slug,
+      name: product.name,
+      quantity,
+      unit: product.unit,
+      minimumQuantity: minimum,
+      notes,
+      image: productImageSrc(product.image),
+    });
+    setAdded(true);
   }
   return (
     <form onSubmit={submit} className="product-request">
@@ -27,15 +36,15 @@ export function ProductRequest({ product }: { product: Product }) {
         <Field
           id="product-quantity"
           label="How much do you need?"
-          hint="Minimum request: 0.5 kg"
+          hint={`Minimum request: ${minimum} ${product.unit}`}
         >
           <div className="quantity-control">
             <button
               type="button"
               aria-label="Decrease quantity"
-              disabled={quantity <= 0.5}
+              disabled={quantity <= minimum}
               onClick={() => {
-                setQuantity(Math.max(0.5, quantity - 0.5));
+                setQuantity(Math.max(minimum, Number((quantity - step).toFixed(3))));
                 setAdded(false);
               }}
             >
@@ -44,9 +53,9 @@ export function ProductRequest({ product }: { product: Product }) {
             <input
               id="product-quantity"
               type="number"
-              min="0.5"
+              min={minimum}
               max="1000"
-              step="0.5"
+              step={product.unit === "kg" ? "0.001" : "1"}
               required
               value={quantity}
               onChange={(event) => {
@@ -54,13 +63,13 @@ export function ProductRequest({ product }: { product: Product }) {
                 setAdded(false);
               }}
             />
-            <span>kg</span>
+            <span>{product.unit}</span>
             <button
               type="button"
               aria-label="Increase quantity"
               disabled={quantity >= 1000}
               onClick={() => {
-                setQuantity(quantity + 0.5);
+                setQuantity(Math.min(1000, Number((quantity + step).toFixed(3))));
                 setAdded(false);
               }}
             >

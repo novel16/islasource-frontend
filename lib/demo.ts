@@ -1,12 +1,15 @@
-import { getProduct } from "./products";
+import { getProduct } from "./demo-products";
 
 export type BasketItem = {
   id: string;
   name: string;
   quantity: number;
-  unit: "kg";
+  unit: "kg" | "pack" | "piece";
   notes: string;
   image?: string;
+  productId?: number;
+  slug?: string;
+  minimumQuantity?: number;
 };
 export type Guest = {
   name: string;
@@ -53,8 +56,13 @@ export const sampleRequest: Request = {
   status: "requested",
 };
 
-export function validQuantity(value: number) {
-  return Number.isFinite(value) && value >= 0.5 && value <= 1000;
+export function validQuantity(value: number, minimum = 0.5) {
+  return (
+    Number.isFinite(value) &&
+    value >= minimum &&
+    value <= 1000 &&
+    Number.isInteger(value * 1000)
+  );
 }
 export function money(centavos: number) {
   return new Intl.NumberFormat("en-PH", {
@@ -104,7 +112,10 @@ export function parseDemo(raw: string): DemoData {
       typeof item.id === "string" &&
       typeof item.name === "string" &&
       validQuantity(item.quantity) &&
-      item.unit === "kg" &&
+      ["kg", "pack", "piece"].includes(item.unit) &&
+      (item.productId === undefined || Number.isInteger(item.productId)) &&
+      (item.minimumQuantity === undefined ||
+        (Number.isFinite(item.minimumQuantity) && item.minimumQuantity > 0)) &&
       typeof item.notes === "string";
     return {
       basket: data.basket.filter(itemValid),

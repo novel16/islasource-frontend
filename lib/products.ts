@@ -1,133 +1,168 @@
-export type Category = "Fresh" | "Frozen" | "Dried";
+export type ProductCategory =
+  | "Dried seafood"
+  | "Fresh seafood"
+  | "Frozen seafood";
+export type ProductUnit = "kg" | "pack" | "piece";
 
 export type Product = {
-  slug: string;
+  id: number;
   name: string;
-  localName: string;
-  category: Category;
-  image: string;
-  imageAlt: string;
+  category: ProductCategory;
+  unit: ProductUnit;
   description: string;
-  seoTitle: string;
-  size: string;
-  preparation: string;
-  featured?: boolean;
+  specs: string;
+  slug: string;
+  meta_title: string;
+  meta_description: string;
+  og_title: string;
+  og_description: string;
+  image: string;
+  image_alt: string;
+  og_image: string;
+  canonical_url: string;
+  indexable: boolean;
+  min_order_quantity: string | number;
+  availability_note: string;
+  updated_at: string;
 };
 
-export const products: Product[] = [
-  {
-    slug: "blue-swimming-crab",
-    name: "Blue swimming crab",
-    localName: "Alimasag",
-    category: "Fresh",
-    image: "/images/crab.jpg",
-    imageAlt: "Blue swimming crabs, illustrating the fresh crab selection",
-    description:
-      "Sweet, delicate meat with a taste of the island. Ask for your preferred size and we’ll check the day’s catch with our fishing partners.",
-    seoTitle: "Fresh Blue Swimming Crab from Bantayan",
-    size: "Medium to large · specify your preference",
-    preparation: "Whole, freshly caught; chilled for transport",
-    featured: true,
-  },
-  {
-    slug: "dried-squid",
-    name: "Dried squid",
-    localName: "Pusit",
-    category: "Dried",
-    image: "/images/squid.jpg",
-    imageAlt: "A person holding up sun-dried squid at a seafood market",
-    description:
-      "A Bantayan breakfast favorite, naturally sun-dried for a rich, savory bite. Beautiful grilled, fried, or shared over a long island lunch.",
-    seoTitle: "Bantayan Dried Squid · Request a Quote",
-    size: "Small, medium, or large · supplier confirmed",
-    preparation: "Cleaned, salted, and sun-dried",
-    featured: true,
-  },
-  {
-    slug: "scallops",
-    name: "Half-shell scallops",
-    localName: "Scallops",
-    category: "Frozen",
-    image: "/images/scallops.jpg",
-    imageAlt: "Fresh scallops in their natural shells",
-    description:
-      "Tender and naturally sweet. A lovely choice for buttered scallops, a family gathering, or your restaurant’s next menu.",
-    seoTitle: "Bantayan Half-shell Scallops",
-    size: "Mixed natural sizes · quoted per kilogram",
-    preparation: "Cleaned half-shell; frozen for transport",
-    featured: true,
-  },
-  {
-    slug: "dried-fish-danggit",
-    name: "Dried danggit",
-    localName: "Danggit",
-    category: "Dried",
-    image: "/images/dried-fish.jpg",
-    imageAlt: "Sun-dried fish prepared by island producers",
-    description:
-      "Crisp, salty, and unmistakably Cebuano. Traditional island-dried rabbitfish, made for garlic rice and slow mornings.",
-    seoTitle: "Bantayan Dried Danggit Fish",
-    size: "Small to medium · split and cleaned",
-    preparation: "Salted, split, and sun-dried",
-    featured: true,
-  },
-  {
-    slug: "binga",
-    name: "Binga shells",
-    localName: "Binga",
-    category: "Fresh",
-    image: "/images/scallops.jpg",
-    imageAlt:
-      "Island shellfish, representative of the fresh shellfish selection",
-    description:
-      "A local shellfish favorite for a simple broth or a shared seafood spread. Tell us your needs and we’ll ask our island partners.",
-    seoTitle: "Fresh Binga Shellfish from Bantayan",
-    size: "Mixed natural sizes · supplier confirmed",
-    preparation: "Shell-on; cleaned and chilled",
-  },
-  {
-    slug: "wasay-wasay",
-    name: "Wasay-wasay",
-    localName: "Local island selection",
-    category: "Fresh",
-    image: "/images/scallops.jpg",
-    imageAlt:
-      "Illustrative shellfish photo; exact wasay-wasay product confirmed on request",
-    description:
-      "Request this local island specialty by name. We’ll ask our partners to confirm the exact product, size, preparation, and availability before you decide.",
-    seoTitle: "Wasay-wasay · Bantayan Seafood Request",
-    size: "Exact local identification and size confirmed by supplier",
-    preparation: "Preparation and handling confirmed in your quotation",
-  },
-  {
-    slug: "baliad",
-    name: "Baliad",
-    localName: "Local island selection",
-    category: "Fresh",
-    image: "/images/scallops.jpg",
-    imageAlt:
-      "Illustrative shellfish photo; exact baliad product confirmed on request",
-    description:
-      "Tell us you’re looking for baliad and we’ll take your request to our local partners. Exact identification, preparation, and availability are confirmed in your quotation.",
-    seoTitle: "Baliad · Bantayan Seafood Request",
-    size: "Exact local identification and size confirmed by supplier",
-    preparation: "Preparation and handling confirmed in your quotation",
-  },
-  {
-    slug: "bonsod",
-    name: "Bonsod",
-    localName: "Local island selection",
-    category: "Dried",
-    image: "/images/dried-fish.jpg",
-    imageAlt:
-      "Illustrative dried fish photo; exact bonsod product confirmed on request",
-    description:
-      "Looking for bonsod? Add your preferred quantity and preparation to a request. Our partners will confirm the exact local product and what they can source.",
-    seoTitle: "Bonsod · Bantayan Seafood Request",
-    size: "Exact local identification and size confirmed by supplier",
-    preparation: "Requested dried preparation; supplier confirmation required",
-  },
+export type ProductPage = {
+  data: Product[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+};
+
+export type GuestQuotePayload = {
+  customer_name: string;
+  email: string;
+  phone: string;
+  location: string;
+  requested_delivery_date: string | null;
+  notes: string;
+  terms_accepted: true;
+  items: {
+    product_id: number | null;
+    name: string;
+    quantity: number;
+    unit: ProductUnit;
+    notes: string;
+  }[];
+};
+
+export type GuestQuoteResponse = { reference: string };
+
+export class PublicApiError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+    public readonly errors: Record<string, string[]> = {},
+  ) {
+    super(message);
+    this.name = "PublicApiError";
+  }
+}
+
+const apiBase = (
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
+).replace(/\/+$/, "");
+const localProductImages = [
+  "/images/squid.jpg",
+  "/images/crab.jpg",
+  "/images/scallops.jpg",
+  "/images/dried-fish.jpg",
 ];
 
-export const getProduct = (slug: string) =>
-  products.find((product) => product.slug === slug);
+export function productImageSrc(path: string): string {
+  if (localProductImages.includes(path)) return path;
+  if (/^\/?storage\/products\/[a-zA-Z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(path)) {
+    const normalized = path.startsWith("/") ? path : `/${path}`;
+    return new URL(normalized, new URL(apiBase).origin).toString();
+  }
+  return "/images/squid.jpg";
+}
+
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(`${apiBase}${path}`, {
+      ...init,
+      credentials: "omit",
+      cache: "no-store",
+      redirect: "error",
+      headers: {
+        Accept: "application/json",
+        ...(init.body ? { "Content-Type": "application/json" } : {}),
+        ...init.headers,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") throw error;
+    throw new PublicApiError(
+      0,
+      "We couldn’t connect to the seafood catalog. Please try again shortly.",
+    );
+  }
+
+  const body: unknown = await response.json().catch(() => null);
+  if (!response.ok) {
+    const record =
+      typeof body === "object" && body !== null
+        ? (body as Record<string, unknown>)
+        : {};
+    const rawErrors = record.errors;
+    const errors: Record<string, string[]> = {};
+    if (typeof rawErrors === "object" && rawErrors !== null) {
+      for (const [key, value] of Object.entries(rawErrors)) {
+        if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
+          errors[key] = value;
+        }
+      }
+    }
+    throw new PublicApiError(
+      response.status,
+      typeof record.message === "string"
+        ? record.message
+        : "We couldn’t complete that request. Please try again.",
+      errors,
+    );
+  }
+  if (body === null) {
+    throw new PublicApiError(502, "We couldn’t read the response. Please try again.");
+  }
+  return body as T;
+}
+
+export async function getPublicProducts(options: {
+  perPage?: number;
+  search?: string;
+  category?: ProductCategory;
+} = {}): Promise<ProductPage> {
+  const query = new URLSearchParams({
+    page: "1",
+    per_page: String(Math.min(100, Math.max(1, options.perPage ?? 100))),
+  });
+  if (options.search?.trim()) query.set("search", options.search.trim());
+  if (options.category) query.set("category", options.category);
+  return request<ProductPage>(`/seafood?${query.toString()}`);
+}
+
+export async function getPublicProduct(slug: string): Promise<Product> {
+  const result = await request<{ data: Product }>(
+    `/seafood/${encodeURIComponent(slug)}`,
+  );
+  return result.data;
+}
+
+export async function submitGuestQuote(
+  payload: GuestQuotePayload,
+): Promise<GuestQuoteResponse> {
+  const result = await request<{ data: GuestQuoteResponse }>("/quote-requests", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return result.data;
+}
