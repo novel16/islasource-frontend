@@ -48,7 +48,7 @@ const questions = [
   },
   {
     q: "Do I need an account to request seafood?",
-    a: "No. Browse, build your selection, and send a guest request with your name, email, mobile number, and delivery location. You can return using your request reference and email. This prototype lets you try a demo lookup or find a request saved in this browser.",
+    a: "No. Browse, build your selection (up to 10 items per request), and send a guest request with your name, email, mobile number, and delivery location. Once we check supply, we email your personal quotation link directly to you.",
   },
   {
     q: "Can I request something that isn’t in the catalog?",
@@ -60,11 +60,11 @@ const questions = [
   },
   {
     q: "When do I pay?",
-    a: "There’s no payment to request a quote. After you review and approve a quotation, the agreed deposit starts procurement. The sample experience shows a 50% deposit with the balance before dispatch. Real terms will always be stated in your quotation.",
+    a: "There’s no payment to request a quote. After we source your items and send your quotation, you review the prices, delivery fee, validity window, and deposit terms before deciding. Deposit payment is arranged only after you accept the quotation.",
   },
   {
-    q: "Can I make a real order through this website?",
-    a: "This is an interactive customer experience prototype. Requests are stored only in this browser, quotations contain illustrative prices, and the payment screen is nonpayable. No real sourcing, email, payment, or delivery is triggered.",
+    q: "How long is my quotation valid?",
+    a: "Quotations are normally valid for 2 days (48 hours) from issue unless stated otherwise on your quote, since fresh catch availability and supplier rates can change daily.",
   },
 ];
 export default function HowItWorksPage() {

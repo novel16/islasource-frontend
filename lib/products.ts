@@ -85,7 +85,11 @@ export function productImageSrc(path: string): string {
   return "/images/squid.jpg";
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function publicApiRequest<T>(
+  path: string,
+  init: RequestInit = {},
+  networkError = "We couldn’t connect to the seafood catalog. Please try again shortly.",
+): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${apiBase}${path}`, {
@@ -101,10 +105,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     });
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") throw error;
-    throw new PublicApiError(
-      0,
-      "We couldn’t connect to the seafood catalog. Please try again shortly.",
-    );
+    throw new PublicApiError(0, networkError);
   }
 
   const body: unknown = await response.json().catch(() => null);
@@ -147,11 +148,11 @@ export async function getPublicProducts(options: {
   });
   if (options.search?.trim()) query.set("search", options.search.trim());
   if (options.category) query.set("category", options.category);
-  return request<ProductPage>(`/seafood?${query.toString()}`);
+  return publicApiRequest<ProductPage>(`/seafood?${query.toString()}`);
 }
 
 export async function getPublicProduct(slug: string): Promise<Product> {
-  const result = await request<{ data: Product }>(
+  const result = await publicApiRequest<{ data: Product }>(
     `/seafood/${encodeURIComponent(slug)}`,
   );
   return result.data;
@@ -160,7 +161,7 @@ export async function getPublicProduct(slug: string): Promise<Product> {
 export async function submitGuestQuote(
   payload: GuestQuotePayload,
 ): Promise<GuestQuoteResponse> {
-  const result = await request<{ data: GuestQuoteResponse }>("/quote-requests", {
+  const result = await publicApiRequest<{ data: GuestQuoteResponse }>("/quote-requests", {
     method: "POST",
     body: JSON.stringify(payload),
   });

@@ -57,7 +57,7 @@ export function SiteFooter() {
           <span>
             © 2026 IslaSource Seafoods. Your connection to the source.
           </span>
-          <span>Live quote requests · Online payments are not enabled</span>
+          <span>Sourced on request · Quoted before commitment</span>
           <span>Guest quote requests</span>
         </div>
       </div>

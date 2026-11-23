@@ -66,18 +66,6 @@ export function Breadcrumb({
     </nav>
   );
 }
-export function DemoNotice({ children }: { children?: ReactNode }) {
-  return (
-    <div className="demo-notice">
-      <Icon name="shield" size={19} />
-      <p>
-        <strong>Interactive prototype.</strong>{" "}
-        {children ||
-          "This journey uses browser-local demo data. No request is sent and no real payment is taken."}
-      </p>
-    </div>
-  );
-}
 export function Field({
   label,
   id,

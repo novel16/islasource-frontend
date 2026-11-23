@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DemoProvider } from "@/components/demo-provider";
+import { BasketProvider } from "@/components/basket-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { siteUrl } from "@/lib/seo";
@@ -23,14 +23,14 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body>
-        <DemoProvider>
+        <BasketProvider>
           <a className="skip-link" href="#main-content">
             Skip to content
           </a>
           <SiteHeader />
           <main id="main-content">{children}</main>
           <SiteFooter />
-        </DemoProvider>
+        </BasketProvider>
       </body>
     </html>
   );

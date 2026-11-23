@@ -3,38 +3,51 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { validQuantity, type Guest } from "@/lib/demo";
+import { MAX_BASKET_ITEMS, validQuantity, type Guest } from "@/lib/basket";
 import { PublicApiError, submitGuestQuote } from "@/lib/products";
-import { useDemo } from "./demo-provider";
+import { useBasket } from "./basket-provider";
 import { ButtonLink, Field } from "./ui/shared";
 import { Icon } from "./ui/icon";
 
 export function QuoteRequestForm() {
-  const { data, ready, addItem, updateItem, removeItem, clearBasket } =
-    useDemo();
+  const { items, ready, addItem, updateItem, removeItem, clearBasket } =
+    useBasket();
   const router = useRouter();
   const [customName, setCustomName] = useState("");
   const [customQuantity, setCustomQuantity] = useState(1);
   const [customNotes, setCustomNotes] = useState("");
-  const [feedback, setFeedback] = useState("");
+  const [customSuccess, setCustomSuccess] = useState("");
+  const [customError, setCustomError] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const basketOverLimit = items.length > MAX_BASKET_ITEMS;
+  const basketFull = items.length >= MAX_BASKET_ITEMS;
   function addCustom(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!customName.trim() || !validQuantity(customQuantity)) return;
-    addItem({
-      id: `custom-${customName.trim().toLowerCase().replace(/\s+/g, "-")}`,
-      name: customName.trim(),
+    const trimmedName = customName.trim();
+    const ok = addItem({
+      id: `custom-${trimmedName.toLowerCase().replace(/\s+/g, "-")}`,
+      name: trimmedName,
       quantity: customQuantity,
       unit: "kg",
       notes: customNotes.trim(),
     });
-    setFeedback(`${customName.trim()} added to your request.`);
+    if (!ok) {
+      setCustomSuccess("");
+      setCustomError(
+        `Your quote request already has the maximum of ${MAX_BASKET_ITEMS} items. Remove an item above to add another.`,
+      );
+      return;
+    }
+    setCustomError("");
+    setCustomSuccess(`${trimmedName} added to your request.`);
     setCustomName("");
     setCustomNotes("");
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!data.basket.length || submitting) return;
+    if (!items.length || basketOverLimit || submitting) return;
     const form = new FormData(event.currentTarget);
     const guest: Guest = {
       name: String(form.get("name")).trim(),
@@ -46,7 +59,7 @@ export function QuoteRequestForm() {
     };
     if (!guest.name || !guest.email || !guest.phone || !guest.location) return;
     setSubmitting(true);
-    setFeedback("");
+    setSubmitError("");
     try {
       const result = await submitGuestQuote({
         customer_name: guest.name,
@@ -56,7 +69,7 @@ export function QuoteRequestForm() {
         requested_delivery_date: guest.date || null,
         notes: guest.notes,
         terms_accepted: true,
-        items: data.basket.map((item) => ({
+        items: items.map((item) => ({
           product_id: item.productId ?? null,
           name: item.name,
           quantity: item.quantity,
@@ -71,7 +84,7 @@ export function QuoteRequestForm() {
         error instanceof PublicApiError
           ? Object.values(error.errors).flat()[0] || error.message
           : "We couldn’t send your request. Please try again.";
-      setFeedback(detail);
+      setSubmitError(detail);
     } finally {
       setSubmitting(false);
     }
@@ -84,15 +97,22 @@ export function QuoteRequestForm() {
             <div className="panel-heading">
               <h2>Your island selection</h2>
               <span>
-                {data.basket.length}{" "}
-                {data.basket.length === 1 ? "item" : "items"}
+                {items.length} / {MAX_BASKET_ITEMS} items
               </span>
             </div>
+            {basketOverLimit && (
+              <p className="form-error basket-limit-alert" role="alert">
+                You can request up to {MAX_BASKET_ITEMS} items per quote
+                request. Please remove {items.length - MAX_BASKET_ITEMS}{" "}
+                {items.length - MAX_BASKET_ITEMS === 1 ? "item" : "items"}{" "}
+                before submitting.
+              </p>
+            )}
             {!ready ? (
               <p className="loading-text">Loading your selection…</p>
-            ) : data.basket.length ? (
+            ) : items.length ? (
               <div className="basket-items">
-                {data.basket.map((item) => (
+                {items.map((item) => (
                   <article className="basket-item" key={item.id}>
                     {item.image ? (
                       <Image
@@ -100,6 +120,7 @@ export function QuoteRequestForm() {
                         alt={item.name}
                         width={92}
                         height={100}
+                        unoptimized={/^https?:\/\//i.test(item.image)}
                         className="basket-image"
                       />
                     ) : (
@@ -211,10 +232,21 @@ export function QuoteRequestForm() {
                 Add custom item
               </button>
             </form>
-            {feedback && (
+            {basketFull && !customError && (
+              <p className="small-note">
+                Maximum of {MAX_BASKET_ITEMS} items reached. Adding an existing
+                item updates its quantity.
+              </p>
+            )}
+            {customError && (
+              <p className="form-error" role="alert">
+                {customError}
+              </p>
+            )}
+            {customSuccess && (
               <p className="success-text" role="status">
                 <Icon name="check" size={16} />
-                {feedback}
+                {customSuccess}
               </p>
             )}
           </div>
@@ -243,7 +275,7 @@ export function QuoteRequestForm() {
           <Field
             label="Email address *"
             id="guest-email"
-            hint="We’ll use this email if we need to clarify your request."
+            hint="We’ll send your finalized quotation to this email."
           >
             <input
               id="guest-email"
@@ -303,15 +335,15 @@ export function QuoteRequestForm() {
               make any commitment.
             </span>
           </label>
-          {feedback && (
+          {submitError && (
             <p className="form-error" role="alert">
-              {feedback}
+              {submitError}
             </p>
           )}
           <button
             type="submit"
             className="button button-primary full-width"
-            disabled={!ready || !data.basket.length || submitting}
+            disabled={!ready || !items.length || basketOverLimit || submitting}
           >
             {submitting ? "Sending request…" : "Send quote request"}
             {!submitting && <Icon name="arrow" size={18} />}

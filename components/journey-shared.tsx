@@ -1,4 +1,3 @@
-import { ButtonLink } from "./ui/shared";
 import { Icon } from "./ui/icon";
 
 export function JourneySteps({ current }: { current: number }) {
@@ -17,22 +16,5 @@ export function JourneySteps({ current }: { current: number }) {
         </li>
       ))}
     </ol>
-  );
-}
-export function MissingRequest() {
-  return (
-    <div className="empty-state">
-      <Icon name="search" size={36} />
-      <h1>Let’s find your request.</h1>
-      <p>This reference isn’t available in this browser’s demo records.</p>
-      <ButtonLink href="/track" arrow>
-        Go to demo lookup
-      </ButtonLink>
-    </div>
-  );
-}
-export function LoadingRequest() {
-  return (
-    <div className="loading-text">Opening your browser-local demo request…</div>
   );
 }

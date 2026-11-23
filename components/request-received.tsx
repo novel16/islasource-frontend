@@ -30,7 +30,7 @@ export function RequestReceived() {
       </h1>
       <p className="confirmation-lead">
         {validReference
-          ? "Your quote request has been saved. We’ll check supplier availability and prepare the details for your review."
+          ? "Your quote request has been saved and your reference number has been sent to your email. We’ll check supplier availability and send your quotation once ready."
           : "Submit a quote request first to receive its reference number."}
       </p>
       {validReference && (

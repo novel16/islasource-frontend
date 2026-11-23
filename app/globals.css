@@ -344,13 +344,24 @@ em {
 .basket-count {
   background: var(--pine);
   color: white;
-  width: 20px;
+  min-width: 20px;
   height: 20px;
-  border-radius: 50%;
+  padding: 0 7px;
+  border-radius: 999px;
   font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+.basket-count.is-full {
+  background: var(--coral);
+}
+.mobile-quote-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 .mobile-menu,
 .mobile-navigation {
@@ -2221,6 +2232,82 @@ em {
   color: var(--muted);
   font-size: 12px;
   margin-bottom: 24px;
+}
+.basket-limit-alert {
+  margin: 0 26px 16px;
+}
+.status-badge-warn {
+  background: #f5e6cc;
+  color: #7c521b;
+}
+.status-badge-muted {
+  background: #ecece4;
+  color: #5b655a;
+}
+.unavailable-items {
+  margin: 18px 26px 4px;
+  padding: 14px 16px;
+  background: #f7f4ec;
+  border: 1px solid #e3dcc9;
+  border-radius: 5px;
+}
+.unavailable-items h3 {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7b5d33;
+  margin-bottom: 8px;
+}
+.unavailable-items ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.unavailable-items li + li {
+  margin-top: 4px;
+}
+.quote-terms-text {
+  white-space: pre-line;
+}
+.quote-action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+.quote-action-stack > .checkbox-label {
+  margin-block: 4px 4px;
+}
+.decline-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--cream);
+  border: 1px solid #d5ddcc;
+  border-radius: 5px;
+}
+.decline-panel label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--pine);
+}
+.decline-panel textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cfd6c8;
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--pine);
+  font-size: 12px;
+  resize: vertical;
+}
+.decline-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 @media (min-width: 1500px) {

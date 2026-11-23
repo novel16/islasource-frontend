@@ -5,6 +5,7 @@ import { Badge } from "./ui/shared";
 import { Icon } from "./ui/icon";
 
 export function ProductCard({ product }: { product: Product }) {
+  const image = productImageSrc(product.image);
   return (
     <article className="product-card">
       <Link
@@ -13,10 +14,10 @@ export function ProductCard({ product }: { product: Product }) {
         aria-label={`View ${product.name}`}
       >
         <Image
-          src={productImageSrc(product.image)}
+          src={image}
           alt={product.image_alt}
           fill
-          unoptimized={product.image.startsWith("/storage/")}
+          unoptimized={/^https?:\/\//i.test(image)}
           sizes="(max-width: 600px) 90vw, (max-width: 1000px) 45vw, 25vw"
         />
         <Badge>

@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { MAX_BASKET_ITEMS } from "@/lib/basket";
 import { Brand } from "./brand";
 import { Icon } from "./ui/icon";
-import { useDemo } from "./demo-provider";
+import { useBasket } from "./basket-provider";
 
 const navigation = [
   { href: "/", label: "Home" },
@@ -16,7 +17,7 @@ const navigation = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const path = usePathname();
-  const { data } = useDemo();
+  const { items } = useBasket();
   return (
     <header className="site-header">
       <div className="header-inner shell">
@@ -43,8 +44,13 @@ export function SiteHeader() {
           >
             <Icon name="bag" size={17} />
             Request a quote
-            {data.basket.length > 0 && (
-              <span className="basket-count">{data.basket.length}</span>
+            {items.length > 0 && (
+              <span
+                className={`basket-count${items.length >= MAX_BASKET_ITEMS ? " is-full" : ""}`}
+                aria-label={`${items.length} of ${MAX_BASKET_ITEMS} items`}
+              >
+                {items.length}/{MAX_BASKET_ITEMS}
+              </span>
             )}
           </Link>
           <button
@@ -65,10 +71,7 @@ export function SiteHeader() {
           className="mobile-navigation"
           aria-label="Mobile navigation"
         >
-          {[
-            ...navigation,
-            { href: "/request-quote", label: "Request a quote" },
-          ].map((item) => (
+          {navigation.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -78,6 +81,19 @@ export function SiteHeader() {
               <Icon name="arrow" size={18} />
             </Link>
           ))}
+          <Link href="/request-quote" onClick={() => setOpen(false)}>
+            <span className="mobile-quote-label">
+              Request a quote
+              {items.length > 0 && (
+                <span
+                  className={`basket-count${items.length >= MAX_BASKET_ITEMS ? " is-full" : ""}`}
+                >
+                  {items.length}/{MAX_BASKET_ITEMS}
+                </span>
+              )}
+            </span>
+            <Icon name="arrow" size={18} />
+          </Link>
         </nav>
       )}
     </header>

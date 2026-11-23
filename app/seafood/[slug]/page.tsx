@@ -129,7 +129,7 @@ async function ProductDetails({
             alt={product.image_alt}
             fill
             priority
-            unoptimized={product.image.startsWith("/storage/")}
+            unoptimized={/^https?:\/\//i.test(image)}
             sizes="(max-width: 760px) 90vw, 47vw"
           />
           <Badge>{product.category} · Bantayan Island</Badge>
