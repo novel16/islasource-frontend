@@ -21,6 +21,7 @@ const {
   parseBasket,
 } = require("../lib/basket.ts");
 const { isLiveQuoteToken } = require("../lib/quotations.ts");
+const { isLiveOrderToken } = require("../lib/orders.ts");
 
 assert.equal(validQuantity(0.5), true);
 assert.equal(validQuantity(1000), true);
@@ -64,7 +65,9 @@ assert.equal(isLiveQuoteToken("RFQ-2026-001"), false);
 assert.equal(isLiveQuoteToken("a".repeat(63)), false);
 assert.equal(isLiveQuoteToken("a".repeat(65)), false);
 assert.equal(isLiveQuoteToken(`${"a".repeat(63)}-`), false);
+assert.equal(isLiveOrderToken("b".repeat(64)), true);
+assert.equal(isLiveOrderToken("ORD-2026-001"), false);
 
 console.log(
-  "Storefront checks passed: basket storage, quantity bounds, 10-item cap, live quote token.",
+  "Storefront checks passed: basket storage, quantity bounds, 10-item cap, live quote/order tokens.",
 );

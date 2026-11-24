@@ -41,6 +41,8 @@ export type PublicQuotation = {
   declined_at: string | null;
   decline_reason: string;
   cancelled_at: string | null;
+  order_reference: string | null;
+  order_token: string | null;
 };
 
 const quoteNetworkError =

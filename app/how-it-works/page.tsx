@@ -21,12 +21,12 @@ const steps = [
   {
     title: "A quote. A clear yes.",
     description:
-      "You receive a personal quotation with the seafood specifications, quantities, current prices, delivery fee, validity period, and deposit terms. Review everything before you decide. No commitment until you approve.",
+      "You receive a personal quotation with the seafood specifications, quantities, current prices, delivery fee, validity period, and full payment terms. Review everything before you decide. No commitment until you approve.",
   },
   {
     title: "We take it from there.",
     description:
-      "After you approve the quotation and arrange the agreed deposit, we begin procurement. Your request reference keeps you connected through sourcing, packing, and delivery. Any balance is settled according to your quotation.",
+      "After you approve the quotation and complete full payment via PayMongo QR Ph, we immediately begin sourcing, packing, and delivery. Follow your order progress anytime on your private order link.",
   },
 ];
 const questions = [
@@ -56,11 +56,11 @@ const questions = [
   },
   {
     q: "Where do you deliver?",
-    a: "Tell us your city or municipality and province when you request. Delivery coverage, the fee, and a suitable schedule are confirmed in your personal quotation before you approve or pay a deposit.",
+    a: "Tell us your city or municipality and province when you request. Delivery coverage, the fee, and a suitable schedule are confirmed in your personal quotation before you approve or pay.",
   },
   {
     q: "When do I pay?",
-    a: "There’s no payment to request a quote. After we source your items and send your quotation, you review the prices, delivery fee, validity window, and deposit terms before deciding. Deposit payment is arranged only after you accept the quotation.",
+    a: "There’s no payment to request a quote. After we source your items and email your quotation, you review the prices, delivery fee, and validity window first. Once you accept, full payment via PayMongo QR Ph starts sourcing immediately.",
   },
   {
     q: "How long is my quotation valid?",

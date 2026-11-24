@@ -14,7 +14,7 @@ const questions = [
   {
     question: "Do you keep your own seafood stocks?",
     answer:
-      "No. We don’t keep our own seafood inventory. We begin checking suppliers when you send a quote request, then procure the confirmed order after you approve the quotation and arrange the agreed deposit.",
+      "No. We don’t keep our own seafood inventory. We begin checking suppliers when you send a quote request, then procure the confirmed order after you approve the quotation and complete full payment via QR Ph.",
   },
   {
     question: "Are you the fishermen or producers?",
@@ -93,7 +93,7 @@ export default function AboutPage() {
           <p>
             We don’t keep our own stocks of seafood. Your quote request starts
             the supplier search. After you approve the confirmed details and
-            agreed deposit, we arrange procurement for your order.
+            complete full QR Ph payment, we arrange procurement for your order.
           </p>
         </article>
         <article>

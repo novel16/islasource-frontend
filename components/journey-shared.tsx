@@ -3,7 +3,7 @@ import { Icon } from "./ui/icon";
 export function JourneySteps({ current }: { current: number }) {
   return (
     <ol className="journey-steps" aria-label="Request progress">
-      {["Request", "Quotation", "Deposit", "Island to door"].map((step, i) => (
+      {["Request", "Quotation", "Payment", "Island to door"].map((step, i) => (
         <li
           key={step}
           className={i < current ? "complete" : i === current ? "current" : ""}

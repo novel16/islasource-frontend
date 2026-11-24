@@ -155,7 +155,7 @@ export default function Home() {
                 n: "03",
                 icon: "check" as const,
                 title: "You give the go-ahead",
-                text: "Review your personal quotation. Approve the details and arrange your deposit.",
+                text: "Review your personal quotation. Approve the details and complete full payment via QR Ph.",
               },
               {
                 n: "04",

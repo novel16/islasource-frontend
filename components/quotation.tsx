@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { money } from "@/lib/basket";
 import { PublicApiError } from "@/lib/products";
@@ -79,6 +80,7 @@ function statusMeta(status: PublicQuotationStatus): {
 }
 
 function LiveQuotation({ token }: { token: string }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [quote, setQuote] = useState<PublicQuotation | null>(null);
   const [error, setError] = useState("");
@@ -142,6 +144,9 @@ function LiveQuotation({ token }: { token: string }) {
       const updated = await acceptPublicQuotation(token);
       setQuote(updated);
       setShowDecline(false);
+      if (updated.order_token) {
+        router.push(`/order/${updated.order_token}`);
+      }
     } catch (err) {
       const message =
         err instanceof PublicApiError
@@ -215,7 +220,6 @@ function LiveQuotation({ token }: { token: string }) {
   const unavailableItems = quote.items.filter((item) => !item.is_available);
   const badge = statusMeta(quote.status);
   const validUntilText = formatDateTime(quote.valid_until);
-  const balancePercent = Math.max(0, 100 - quote.deposit_percent);
 
   return (
     <>
@@ -318,17 +322,15 @@ function LiveQuotation({ token }: { token: string }) {
                   {quote.requested_delivery_date
                     ? `Preferred date: ${quote.requested_delivery_date}. `
                     : ""}
-                  Final dispatch timing is confirmed once deposit is received.
+                  Final dispatch timing is confirmed once full payment is received.
                 </p>
               </div>
               <div>
                 <Icon name="shield" size={20} />
-                <h3>Deposit & balance</h3>
+                <h3>Full payment via QR Ph</h3>
                 <p>
-                  {quote.deposit_percent}% deposit (
-                  {money(quote.deposit_centavos)}) begins sourcing. Remaining{" "}
-                  {balancePercent}% ({money(quote.balance_centavos)}) is due
-                  before dispatch.
+                  Full payment of {money(quote.total_centavos)} via PayMongo QR
+                  Ph confirms your order and begins sourcing on Bantayan Island.
                 </p>
               </div>
               <div>
@@ -336,7 +338,7 @@ function LiveQuotation({ token }: { token: string }) {
                 <h3>Quotation terms</h3>
                 <p className="quote-terms-text">
                   {quote.terms ||
-                    "Sourced fresh to order from Bantayan Island after your deposit is confirmed."}
+                    "Sourced fresh to order from Bantayan Island after your full QR Ph payment is confirmed."}
                 </p>
               </div>
             </div>
@@ -353,8 +355,8 @@ function LiveQuotation({ token }: { token: string }) {
               <h2>Review and confirm.</h2>
               <p>
                 Accept this quotation before{" "}
-                {validUntilText || "it expires"} so we can send your QR Ph
-                deposit instructions and reserve your catch.
+                {validUntilText || "it expires"} to proceed directly to PayMongo
+                QR Ph checkout for full payment.
               </p>
             </>
           )}
@@ -367,8 +369,8 @@ function LiveQuotation({ token }: { token: string }) {
                 {quote.accepted_at
                   ? ` on ${formatDateTime(quote.accepted_at)}`
                   : ""}
-                . Our team will send your QR Ph deposit payment instructions
-                shortly so we can begin sourcing.
+                . Continue to your order page to complete full payment via
+                PayMongo QR Ph or check order progress.
               </p>
             </>
           )}
@@ -419,11 +421,9 @@ function LiveQuotation({ token }: { token: string }) {
           )}
 
           <div className="deposit-amount">
-            <span>{quote.deposit_percent}% deposit</span>
-            <strong>{money(quote.deposit_centavos)}</strong>
-            <small>
-              Balance before dispatch: {money(quote.balance_centavos)}
-            </small>
+            <span>Total due (100% Full Payment)</span>
+            <strong>{money(quote.total_centavos)}</strong>
+            <small>Paid via PayMongo QR Ph after acceptance</small>
           </div>
 
           {quote.status === "Sent" && (
@@ -438,8 +438,8 @@ function LiveQuotation({ token }: { token: string }) {
                   }}
                 />
                 <span>
-                  I’ve reviewed the items, delivery fee, validity, and{" "}
-                  {quote.deposit_percent}% deposit terms.
+                  I’ve reviewed the items, delivery fee, validity, and full QR
+                  Ph payment terms.
                 </span>
               </label>
               {actionError && (
@@ -510,17 +510,26 @@ function LiveQuotation({ token }: { token: string }) {
 
           {quote.status === "Accepted" && (
             <div className="quote-action-stack">
-              <div className="soft-note" role="status">
-                <Icon name="check" size={18} />
-                <div>
-                  <strong>Next: Deposit payment</strong>
-                  <p>
-                    Watch your email for QR Ph deposit instructions for{" "}
-                    {money(quote.deposit_centavos)}. Procurement starts once
-                    your deposit is verified.
-                  </p>
+              {quote.order_token ? (
+                <ButtonLink
+                  href={`/order/${quote.order_token}`}
+                  arrow
+                  className="full-width"
+                >
+                  Continue to QR Ph Payment &amp; Order
+                </ButtonLink>
+              ) : (
+                <div className="soft-note" role="status">
+                  <Icon name="check" size={18} />
+                  <div>
+                    <strong>Next: Full payment via QR Ph</strong>
+                    <p>
+                      Total due: {money(quote.total_centavos)}. Sourcing begins
+                      as soon as payment is verified.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
