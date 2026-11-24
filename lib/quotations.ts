@@ -1,4 +1,5 @@
-import { publicApiRequest, type ProductUnit } from "./products";
+import { apiEndpoints, publicApiRequest } from "./api";
+import type { ProductUnit } from "./products";
 
 export type PublicQuotationStatus =
   | "Sent"
@@ -57,7 +58,7 @@ export async function getPublicQuotation(
   signal?: AbortSignal,
 ): Promise<PublicQuotation> {
   const result = await publicApiRequest<{ data: PublicQuotation }>(
-    `/quotations/${encodeURIComponent(token)}`,
+    apiEndpoints.quotation(token),
     { signal },
     quoteNetworkError,
   );
@@ -68,7 +69,7 @@ export async function acceptPublicQuotation(
   token: string,
 ): Promise<PublicQuotation> {
   const result = await publicApiRequest<{ data: PublicQuotation }>(
-    `/quotations/${encodeURIComponent(token)}/accept`,
+    apiEndpoints.quotationAccept(token),
     {
       method: "POST",
       body: JSON.stringify({ terms_accepted: true }),
@@ -83,7 +84,7 @@ export async function declinePublicQuotation(
   reason = "",
 ): Promise<PublicQuotation> {
   const result = await publicApiRequest<{ data: PublicQuotation }>(
-    `/quotations/${encodeURIComponent(token)}/decline`,
+    apiEndpoints.quotationDecline(token),
     {
       method: "POST",
       body: JSON.stringify({ reason: reason.trim() }),

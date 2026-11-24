@@ -1,4 +1,4 @@
-import { publicApiRequest } from "./products";
+import { apiEndpoints, publicApiRequest } from "./api";
 import { isLiveQuoteToken, type PublicQuotationItem } from "./quotations";
 
 export type PublicOrderStatus =
@@ -43,7 +43,7 @@ export async function getPublicOrder(
   signal?: AbortSignal,
 ): Promise<PublicOrder> {
   const result = await publicApiRequest<{ data: PublicOrder }>(
-    `/orders/${encodeURIComponent(token)}`,
+    apiEndpoints.order(token),
     { signal },
     orderNetworkError,
   );
@@ -54,7 +54,7 @@ export async function startOrderQrPhCheckout(
   token: string,
 ): Promise<{ checkout_url: string }> {
   const result = await publicApiRequest<{ data: { checkout_url: string } }>(
-    `/orders/${encodeURIComponent(token)}/checkout`,
+    apiEndpoints.orderCheckout(token),
     { method: "POST" },
     orderNetworkError,
   );
@@ -63,7 +63,7 @@ export async function startOrderQrPhCheckout(
 
 export async function verifyOrderPayment(token: string): Promise<PublicOrder> {
   const result = await publicApiRequest<{ data: PublicOrder }>(
-    `/orders/${encodeURIComponent(token)}/verify-payment`,
+    apiEndpoints.orderVerifyPayment(token),
     { method: "POST" },
     orderNetworkError,
   );
