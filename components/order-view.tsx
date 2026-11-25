@@ -1,14 +1,16 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { money } from "@/lib/basket";
 import {
   getPublicOrder,
   isLiveOrderToken,
+  sendPublicOrderMessage,
   startOrderQrPhCheckout,
   verifyOrderPayment,
   type PublicOrder,
+  type PublicOrderMessage,
   type PublicOrderStatus,
 } from "@/lib/orders";
 import { PublicApiError } from "@/lib/products";
@@ -108,6 +110,10 @@ function LiveOrderView({ token }: { token: string }) {
   const [redirecting, setRedirecting] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [actionError, setActionError] = useState("");
+  const [messageBody, setMessageBody] = useState("");
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [messageError, setMessageError] = useState("");
+  const [messageSentNotice, setMessageSentNotice] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -196,6 +202,34 @@ function LiveOrderView({ token }: { token: string }) {
     }
   }
 
+  async function handleSendMessage(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!order || sendingMessage || !messageBody.trim()) return;
+    setSendingMessage(true);
+    setMessageError("");
+    setMessageSentNotice(false);
+    try {
+      const created: PublicOrderMessage = await sendPublicOrderMessage(
+        token,
+        messageBody,
+      );
+      setOrder({
+        ...order,
+        messages: [...(order.messages ?? []), created],
+      });
+      setMessageBody("");
+      setMessageSentNotice(true);
+    } catch (err) {
+      setMessageError(
+        err instanceof PublicApiError
+          ? Object.values(err.errors).flat()[0] || err.message
+          : "We couldn’t send your message right now. Please try again.",
+      );
+    } finally {
+      setSendingMessage(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="loading-text">
@@ -237,6 +271,11 @@ function LiveOrderView({ token }: { token: string }) {
 
   const badge = statusBadge(order.status);
   const isPaid = order.payment_status === "Paid";
+  const messages = order.messages ?? [];
+  const messagingOpen =
+    order.status !== "Completed" && order.status !== "Cancelled";
+  const displayDeliveryDate =
+    order.confirmed_delivery_date || order.requested_delivery_date;
 
   return (
     <>
@@ -397,6 +436,104 @@ function LiveOrderView({ token }: { token: string }) {
               </div>
             </div>
           </section>
+
+          <section
+            id="messages"
+            className="panel order-messages-panel"
+            style={{ marginTop: 23 }}
+          >
+            <div className="panel-heading">
+              <h2>Messages &amp; follow-up</h2>
+              <span>
+                {messagingOpen
+                  ? "Email notifications enabled"
+                  : "Conversation closed"}
+              </span>
+            </div>
+            <div className="order-messages-body">
+              {messages.length > 0 ? (
+                <div className="order-message-list">
+                  {messages.map((msg) => (
+                    <article
+                      key={msg.id}
+                      className={`order-message-card${msg.sender_type === "admin" ? " is-admin" : " is-customer"}`}
+                    >
+                      <header>
+                        <strong>
+                          {msg.sender_type === "admin"
+                            ? "IslaSource Seafoods"
+                            : `${msg.sender_name} (You)`}
+                        </strong>
+                        <time dateTime={msg.created_at}>
+                          {formatDateTime(msg.created_at)}
+                        </time>
+                      </header>
+                      <p>{msg.body}</p>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <p className="order-messages-empty">
+                  Have a delivery instruction, bus/port landmark, or follow-up
+                  question? Send us a message here — our team gets notified by
+                  email right away, and any reply will also be emailed to you.
+                </p>
+              )}
+
+              {messagingOpen ? (
+                <form
+                  className="order-message-form"
+                  onSubmit={(event) => void handleSendMessage(event)}
+                >
+                  <div className="field">
+                    <label htmlFor="guest-order-message">
+                      Send a message about {order.reference}
+                    </label>
+                    <textarea
+                      id="guest-order-message"
+                      rows={3}
+                      maxLength={2000}
+                      required
+                      disabled={sendingMessage}
+                      value={messageBody}
+                      onChange={(event) => {
+                        setMessageBody(event.target.value);
+                        if (messageError) setMessageError("");
+                        if (messageSentNotice) setMessageSentNotice(false);
+                      }}
+                      placeholder="Write a follow-up question, packing note, or delivery landmark…"
+                    />
+                  </div>
+                  {messageError && (
+                    <p className="form-error" role="alert">
+                      {messageError}
+                    </p>
+                  )}
+                  {messageSentNotice && (
+                    <p className="success-text" role="status">
+                      <Icon name="check" size={15} />
+                      Message sent. We’ll email you a link here as soon as we
+                      reply.
+                    </p>
+                  )}
+                  <button
+                    type="submit"
+                    className="button button-outline"
+                    disabled={sendingMessage || !messageBody.trim()}
+                  >
+                    {sendingMessage ? "Sending…" : "Send message"}
+                    {!sendingMessage && <Icon name="arrow" size={16} />}
+                  </button>
+                </form>
+              ) : (
+                <p className="small-note">
+                  Messaging is closed because this order is{" "}
+                  {order.status.toLowerCase()}.
+                </p>
+              )}
+            </div>
+          </section>
+
           <p className="private-note">
             Keep this private link to check your payment receipt and live order
             progress anytime.
@@ -482,8 +619,8 @@ function LiveOrderView({ token }: { token: string }) {
                     <strong>Current status: {order.status}</strong>
                     <p>
                       Delivering to {order.delivery_location}
-                      {order.requested_delivery_date
-                        ? ` · Preferred date ${order.requested_delivery_date}`
+                      {displayDeliveryDate
+                        ? ` · Target date ${displayDeliveryDate}`
                         : ""}
                       .
                     </p>

@@ -319,9 +319,11 @@ function LiveQuotation({ token }: { token: string }) {
                 <h3>Delivery arrangements</h3>
                 <p>
                   Destination: {quote.delivery_location}.{" "}
-                  {quote.requested_delivery_date
-                    ? `Preferred date: ${quote.requested_delivery_date}. `
-                    : ""}
+                  {quote.confirmed_delivery_date
+                    ? `Confirmed delivery date: ${quote.confirmed_delivery_date}. `
+                    : quote.requested_delivery_date
+                      ? `Preferred date: ${quote.requested_delivery_date}. `
+                      : ""}
                   Final dispatch timing is confirmed once full payment is received.
                 </p>
               </div>

@@ -27,6 +27,7 @@ export type PublicQuotation = {
   customer_name: string;
   delivery_location: string;
   requested_delivery_date: string | null;
+  confirmed_delivery_date?: string | null;
   items: PublicQuotationItem[];
   subtotal_centavos: number;
   delivery_centavos: number;
@@ -88,6 +89,62 @@ export async function declinePublicQuotation(
     {
       method: "POST",
       body: JSON.stringify({ reason: reason.trim() }),
+    },
+    quoteNetworkError,
+  );
+  return result.data;
+}
+
+export type PublicRfqScheduleItem = {
+  id: number;
+  name: string;
+  unit: ProductUnit;
+  quantity: string;
+  notes: string;
+};
+
+export type PublicRfqSchedule = {
+  reference: string;
+  status: string;
+  customer_name: string;
+  delivery_location: string;
+  requested_delivery_date: string | null;
+  proposed_available_date: string | null;
+  proposed_delivery_date: string | null;
+  schedule_notice: string;
+  schedule_status:
+    | "Proposed"
+    | "Accepted"
+    | "Declined"
+    | "ClosedUnavailable"
+    | null;
+  schedule_responded_at: string | null;
+  schedule_customer_note: string;
+  items: PublicRfqScheduleItem[];
+};
+
+export async function getPublicRfqSchedule(
+  token: string,
+  signal?: AbortSignal,
+): Promise<PublicRfqSchedule> {
+  const result = await publicApiRequest<{ data: PublicRfqSchedule }>(
+    apiEndpoints.quoteRequestSchedule(token),
+    { signal },
+    quoteNetworkError,
+  );
+  return result.data;
+}
+
+export async function respondToPublicRfqSchedule(
+  token: string,
+  decision: "accept" | "cancel",
+  note = "",
+): Promise<PublicRfqSchedule> {
+  const result = await publicApiRequest<{ data: PublicRfqSchedule }>(
+    apiEndpoints.quoteRequestScheduleRespond(token),
+    {
+      method: "POST",
+      body: JSON.stringify({ decision, note: note.trim() }),
     },
     quoteNetworkError,
   );

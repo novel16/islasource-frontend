@@ -1601,6 +1601,105 @@ em {
   border-radius: 4px;
   margin-bottom: 15px;
 }
+.schedule-notice-copy {
+  margin-top: 14px;
+  padding: 16px 18px;
+  background: var(--mint-light);
+  border-left: 3px solid var(--coral);
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1.85;
+  color: var(--pine);
+  white-space: pre-line;
+}
+.schedule-dates-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.schedule-dates-card > div > span {
+  display: block;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.schedule-dates-card > div > strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pine);
+}
+.order-messages-panel {
+  scroll-margin-top: 24px;
+}
+.order-messages-body {
+  padding: 22px 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.order-messages-empty {
+  font-size: 11px;
+  line-height: 1.85;
+  color: var(--muted);
+}
+.order-message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.order-message-card {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 13px 16px;
+  background: var(--cream);
+}
+.order-message-card.is-admin {
+  background: var(--mint-light);
+  border-color: #cfe0d1;
+}
+.order-message-card > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.order-message-card > header > strong {
+  color: var(--pine);
+  font-weight: 600;
+}
+.order-message-card > p {
+  font-size: 12px;
+  line-height: 1.75;
+  color: var(--pine);
+  white-space: pre-line;
+}
+.order-message-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.order-message-form > .field {
+  width: 100%;
+}
+@media (max-width: 760px) {
+  .schedule-dates-card {
+    grid-template-columns: 1fr;
+  }
+  .order-messages-body {
+    padding: 18px 20px 22px;
+  }
+}
 .journey-content {
   padding-top: 32px;
 }

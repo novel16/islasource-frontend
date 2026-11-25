@@ -10,6 +10,10 @@ export const apiEndpoints = {
   seafood: "/seafood",
   seafoodDetail: (slug: string) => `/seafood/${encodeURIComponent(slug)}`,
   quoteRequests: "/quote-requests",
+  quoteRequestSchedule: (token: string) =>
+    `/quote-requests/schedule/${encodeURIComponent(token)}`,
+  quoteRequestScheduleRespond: (token: string) =>
+    `/quote-requests/schedule/${encodeURIComponent(token)}/respond`,
   quotation: (token: string) => `/quotations/${encodeURIComponent(token)}`,
   quotationAccept: (token: string) =>
     `/quotations/${encodeURIComponent(token)}/accept`,
@@ -20,6 +24,8 @@ export const apiEndpoints = {
     `/orders/${encodeURIComponent(token)}/checkout`,
   orderVerifyPayment: (token: string) =>
     `/orders/${encodeURIComponent(token)}/verify-payment`,
+  orderMessages: (token: string) =>
+    `/orders/${encodeURIComponent(token)}/messages`,
 } as const;
 
 export class PublicApiError extends Error {

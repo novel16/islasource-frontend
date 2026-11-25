@@ -9,6 +9,14 @@ export type PublicOrderStatus =
   | "Completed"
   | "Cancelled";
 
+export type PublicOrderMessage = {
+  id: number;
+  sender_type: "admin" | "customer";
+  sender_name: string;
+  body: string;
+  created_at: string;
+};
+
 export type PublicOrder = {
   reference: string;
   quotation_reference: string;
@@ -18,7 +26,9 @@ export type PublicOrder = {
   customer_name: string;
   delivery_location: string;
   requested_delivery_date: string | null;
+  confirmed_delivery_date?: string | null;
   items: PublicQuotationItem[];
+  messages?: PublicOrderMessage[];
   subtotal_centavos: number;
   delivery_centavos: number;
   total_centavos: number;
@@ -65,6 +75,21 @@ export async function verifyOrderPayment(token: string): Promise<PublicOrder> {
   const result = await publicApiRequest<{ data: PublicOrder }>(
     apiEndpoints.orderVerifyPayment(token),
     { method: "POST" },
+    orderNetworkError,
+  );
+  return result.data;
+}
+
+export async function sendPublicOrderMessage(
+  token: string,
+  body: string,
+): Promise<PublicOrderMessage> {
+  const result = await publicApiRequest<{ data: PublicOrderMessage }>(
+    apiEndpoints.orderMessages(token),
+    {
+      method: "POST",
+      body: JSON.stringify({ body: body.trim() }),
+    },
     orderNetworkError,
   );
   return result.data;
