@@ -2,7 +2,11 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { Catalog } from "@/components/catalog";
 import { Breadcrumb, ButtonLink, Eyebrow } from "@/components/ui/shared";
-import { getPublicProducts, type Product } from "@/lib/products";
+import {
+  getPublicProducts,
+  PUBLIC_CATALOG_PER_PAGE,
+  type ProductPage,
+} from "@/lib/products";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata(
@@ -39,13 +43,16 @@ export default function SeafoodPage() {
 
 async function PublishedCatalog() {
   await connection();
-  let products: Product[] | null = null;
+  let catalogPage: ProductPage | null = null;
   try {
-    products = (await getPublicProducts({ perPage: 100 })).data;
+    catalogPage = await getPublicProducts({
+      page: 1,
+      perPage: PUBLIC_CATALOG_PER_PAGE,
+    });
   } catch {
-    products = null;
+    catalogPage = null;
   }
-  if (products === null) {
+  if (catalogPage === null) {
     return (
       <div className="empty-state">
         <h2>The seafood catalog is temporarily unavailable</h2>
@@ -54,7 +61,7 @@ async function PublishedCatalog() {
       </div>
     );
   }
-  if (!products.length) {
+  if (!catalogPage.data.length && catalogPage.meta.total === 0) {
     return (
       <div className="empty-state">
         <h2>No seafood listings are published yet</h2>
@@ -63,5 +70,5 @@ async function PublishedCatalog() {
       </div>
     );
   }
-  return <Catalog products={products} />;
+  return <Catalog initialCatalog={catalogPage} />;
 }

@@ -21,6 +21,7 @@ const {
   parseBasket,
 } = require("../lib/basket.ts");
 const { API_BASE_URL, API_V1_URL } = require("../lib/api.ts");
+const { PUBLIC_CATALOG_PER_PAGE } = require("../lib/products.ts");
 const { isLiveQuoteToken } = require("../lib/quotations.ts");
 const { isLiveOrderToken } = require("../lib/orders.ts");
 
@@ -59,6 +60,7 @@ assert.equal(canAddBasketItem(tenItems, "item-11"), false);
 
 assert.equal(API_BASE_URL.endsWith("/api/v1"), false);
 assert.equal(API_V1_URL, `${API_BASE_URL}/api/v1`);
+assert.equal(PUBLIC_CATALOG_PER_PAGE, 12);
 
 assert.equal(isLiveQuoteToken("a".repeat(64)), true);
 assert.equal(

@@ -35,6 +35,8 @@ export type Product = {
   updated_at: string;
 };
 
+export const PUBLIC_CATALOG_PER_PAGE = 12;
+
 export type ProductPage = {
   data: Product[];
   meta: {
@@ -42,6 +44,7 @@ export type ProductPage = {
     last_page: number;
     per_page: number;
     total: number;
+    category_counts?: Partial<Record<ProductCategory, number>>;
   };
 };
 
@@ -82,19 +85,24 @@ export function productImageSrc(path: string): string {
 
 export async function getPublicProducts(
   options: {
+    page?: number;
     perPage?: number;
     search?: string;
     category?: ProductCategory;
+    signal?: AbortSignal;
   } = {},
 ): Promise<ProductPage> {
   const query = new URLSearchParams({
-    page: "1",
-    per_page: String(Math.min(100, Math.max(1, options.perPage ?? 100))),
+    page: String(Math.max(1, Math.trunc(options.page ?? 1))),
+    per_page: String(
+      Math.min(100, Math.max(1, options.perPage ?? PUBLIC_CATALOG_PER_PAGE)),
+    ),
   });
   if (options.search?.trim()) query.set("search", options.search.trim());
   if (options.category) query.set("category", options.category);
   return publicApiRequest<ProductPage>(
     `${apiEndpoints.seafood}?${query.toString()}`,
+    options.signal ? { signal: options.signal } : {},
   );
 }
 
