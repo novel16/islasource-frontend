@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { money } from "@/lib/basket";
+import { deliveryLabel, money } from "@/lib/basket";
 import { PublicApiError } from "@/lib/products";
 import {
   acceptPublicQuotation,
@@ -294,7 +295,7 @@ function LiveQuotation({ token }: { token: string }) {
               </div>
               <div>
                 <span>Delivery to {quote.delivery_location}</span>
-                <span>{money(quote.delivery_centavos)}</span>
+                <span>{deliveryLabel(quote.delivery_centavos)}</span>
               </div>
               <div className="grand-total">
                 <strong>Total quotation</strong>
@@ -440,8 +441,17 @@ function LiveQuotation({ token }: { token: string }) {
                   }}
                 />
                 <span>
-                  I’ve reviewed the items, delivery fee, validity, and full QR
-                  Ph payment terms.
+                  I’ve reviewed the items, delivery/terminal fee, and validity,
+                  and I agree to the{" "}
+                  <Link
+                    href="/terms#payments-refunds"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-policy-link"
+                  >
+                    100% QR Ph Payment, Terminal Pickup &amp; Refund Terms
+                  </Link>
+                  .
                 </span>
               </label>
               {actionError && (

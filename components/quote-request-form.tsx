@@ -1,13 +1,37 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { MAX_BASKET_ITEMS, validQuantity, type Guest } from "@/lib/basket";
+import {
+  CEBU_MIN_KG,
+  ISLAND_MIN_KG,
+  MAX_BASKET_ITEMS,
+  checkZoneMinimum,
+  formatDeliveryLocation,
+  validQuantity,
+  type CebuChannel,
+  type DeliveryZone,
+  type Guest,
+  type IslandTown,
+} from "@/lib/basket";
 import { PublicApiError, submitGuestQuote } from "@/lib/products";
 import { useBasket } from "./basket-provider";
 import { ButtonLink, Field } from "./ui/shared";
 import { Icon } from "./ui/icon";
+
+const islandTowns: IslandTown[] = ["Bantayan", "Santa Fe", "Madridejos"];
+const cebuChannels: { value: CebuChannel; label: string }[] = [
+  {
+    value: "Ceres Bus — Cebu North Bus Terminal",
+    label: "Ceres Bus — Cebu North Bus Terminal (Best for fresh & frozen)",
+  },
+  {
+    value: "Jessamae / Island Trucking Hub",
+    label: "Jessamae / Island Trucking Hub (~1 day, best for dried)",
+  },
+];
 
 export function QuoteRequestForm() {
   const { items, ready, addItem, updateItem, removeItem, clearBasket } =
@@ -18,10 +42,19 @@ export function QuoteRequestForm() {
   const [customNotes, setCustomNotes] = useState("");
   const [customSuccess, setCustomSuccess] = useState("");
   const [customError, setCustomError] = useState("");
+  const [zone, setZone] = useState<DeliveryZone>("island");
+  const [islandTown, setIslandTown] = useState<IslandTown>("Bantayan");
+  const [cebuChannel, setCebuChannel] = useState<CebuChannel>(
+    "Ceres Bus — Cebu North Bus Terminal",
+  );
+  const [locationDetail, setLocationDetail] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
   const basketOverLimit = items.length > MAX_BASKET_ITEMS;
   const basketFull = items.length >= MAX_BASKET_ITEMS;
+  const minCheck = checkZoneMinimum(items, zone);
+
   function addCustom(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!customName.trim() || !validQuantity(customQuantity)) return;
@@ -45,15 +78,22 @@ export function QuoteRequestForm() {
     setCustomName("");
     setCustomNotes("");
   }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!items.length || basketOverLimit || submitting) return;
+    if (!items.length || basketOverLimit || !minCheck.ok || submitting) return;
     const form = new FormData(event.currentTarget);
+    const formattedLocation = formatDeliveryLocation({
+      zone,
+      islandTown,
+      detail: locationDetail,
+      cebuChannel,
+    });
     const guest: Guest = {
       name: String(form.get("name")).trim(),
       email: String(form.get("email")).trim().toLowerCase(),
       phone: String(form.get("phone")).trim(),
-      location: String(form.get("location")).trim(),
+      location: formattedLocation,
       date: String(form.get("date") || ""),
       notes: String(form.get("notes") || "").trim(),
     };
@@ -78,7 +118,9 @@ export function QuoteRequestForm() {
         })),
       });
       clearBasket();
-      router.push(`/request-received?reference=${encodeURIComponent(result.reference)}`);
+      router.push(
+        `/request-received?reference=${encodeURIComponent(result.reference)}`,
+      );
     } catch (error) {
       const detail =
         error instanceof PublicApiError
@@ -89,6 +131,7 @@ export function QuoteRequestForm() {
       setSubmitting(false);
     }
   }
+
   return (
     <>
       <div className="request-layout">
@@ -139,16 +182,17 @@ export function QuoteRequestForm() {
                           </span>
                           <input
                             type="number"
-                            min={item.minimumQuantity ?? 0.5}
-                            max="1000"
-                            step={item.unit === "kg" ? "0.001" : "1"}
+                            min={item.minimumQuantity || 0.5}
+                            max={1000}
+                            step={item.unit === "kg" ? 0.5 : 1}
                             value={item.quantity}
                             onChange={(event) => {
-                              const value = Number(event.target.value);
+                              const next = Number(event.target.value);
                               if (
-                                validQuantity(value, item.minimumQuantity ?? 0.5)
-                              )
-                                updateItem(item.id, value);
+                                validQuantity(next, item.minimumQuantity || 0.5)
+                              ) {
+                                updateItem(item.id, next);
+                              }
                             }}
                           />
                           <span>{item.unit}</span>
@@ -156,10 +200,8 @@ export function QuoteRequestForm() {
                         <button
                           type="button"
                           className="text-button remove-button"
-                          aria-label={`Remove ${item.name}`}
                           onClick={() => removeItem(item.id)}
                         >
-                          <Icon name="trash" size={15} />
                           Remove
                         </button>
                       </div>
@@ -169,10 +211,10 @@ export function QuoteRequestForm() {
               </div>
             ) : (
               <div className="empty-state compact">
-                <Icon name="bag" size={35} />
-                <h3>A good meal starts here.</h3>
+                <Icon name="bag" size={32} />
+                <h3>Your quote request is empty</h3>
                 <p>
-                  Add your favorites from the catalog, or make a custom request
+                  Choose seafood from our catalog, or add a custom request
                   below.
                 </p>
                 <ButtonLink href="/seafood" arrow>
@@ -180,54 +222,67 @@ export function QuoteRequestForm() {
                 </ButtonLink>
               </div>
             )}
-            <div className="basket-reassurance">
-              <Icon name="leaf" size={18} />
-              <p>
-                We source after you request. Final prices and availability are
-                confirmed with our island partners.
-              </p>
-            </div>
+            <p className="basket-reassurance">
+              <Icon name="shield" size={16} />
+              <span>
+                Bantayan Island direct delivery is <strong>Free</strong> (
+                {ISLAND_MIN_KG} kg min) · Mainland Cebu terminal pickup starts
+                at {CEBU_MIN_KG} kg min.
+              </span>
+            </p>
           </div>
           <div className="panel custom-item-panel" id="custom-item">
             <h3>Looking for something else?</h3>
-            <p>Add an item we can ask our partners about.</p>
-            <form onSubmit={addCustom} className="custom-item-form">
+            <p>
+              Tell us what island seafood you need and we’ll check with local
+              fishermen and suppliers.
+            </p>
+            <form className="custom-item-form" onSubmit={addCustom}>
               <Field id="custom-name" label="Seafood or product name">
                 <input
                   id="custom-name"
-                  required
-                  maxLength={80}
                   value={customName}
+                  maxLength={80}
+                  disabled={basketFull}
                   onChange={(event) => setCustomName(event.target.value)}
-                  placeholder="e.g. fresh tiger prawns"
+                  placeholder="e.g. Live lambay, dried pusit…"
+                  required
                 />
               </Field>
-              <Field id="custom-quantity" label="Quantity (kg)">
+              <Field id="custom-qty" label="Qty (kg)">
                 <input
-                  id="custom-quantity"
+                  id="custom-qty"
                   type="number"
-                  min="0.5"
-                  max="1000"
-                  step="0.5"
-                  required
+                  min={0.5}
+                  max={1000}
+                  step={0.5}
+                  disabled={basketFull}
                   value={customQuantity}
                   onChange={(event) =>
                     setCustomQuantity(Number(event.target.value))
                   }
+                  required
                 />
               </Field>
-              <div className="span-full">
-                <Field id="custom-notes" label="Preferences (optional)">
-                  <input
-                    id="custom-notes"
-                    maxLength={300}
-                    value={customNotes}
-                    onChange={(event) => setCustomNotes(event.target.value)}
-                    placeholder="Size, preparation, or anything we should know"
-                  />
-                </Field>
-              </div>
-              <button type="submit" className="button button-outline span-full">
+              <Field
+                id="custom-notes"
+                label="Preferred size or preparation"
+                className="span-full"
+              >
+                <input
+                  id="custom-notes"
+                  value={customNotes}
+                  maxLength={160}
+                  disabled={basketFull}
+                  onChange={(event) => setCustomNotes(event.target.value)}
+                  placeholder="Optional · size, fresh or dried, packing…"
+                />
+              </Field>
+              <button
+                type="submit"
+                disabled={basketFull}
+                className="button button-outline span-full"
+              >
                 <Icon name="plus" size={17} />
                 Add custom item
               </button>
@@ -254,6 +309,7 @@ export function QuoteRequestForm() {
             ← Keep exploring seafood
           </ButtonLink>
         </div>
+
         <form className="panel guest-form" onSubmit={submit}>
           <span className="eyebrow">NO ACCOUNT NEEDED</span>
           <h2>
@@ -262,6 +318,7 @@ export function QuoteRequestForm() {
             then we’ll take it from here.
           </h2>
           <p>Tell us where your island catch is headed.</p>
+
           <Field label="Full name *" id="guest-name">
             <input
               id="guest-name"
@@ -298,22 +355,111 @@ export function QuoteRequestForm() {
               placeholder="09XX XXX XXXX"
             />
           </Field>
+
+          <div className="field">
+            <label>Delivery / pickup area *</label>
+            <div className="zone-toggle" role="group" aria-label="Delivery area">
+              <button
+                type="button"
+                aria-pressed={zone === "island"}
+                className={zone === "island" ? "selected" : ""}
+                onClick={() => {
+                  setZone("island");
+                  setSubmitError("");
+                }}
+              >
+                <strong>Within Bantayan Island</strong>
+                <small>Free direct delivery · {ISLAND_MIN_KG} kg min</small>
+              </button>
+              <button
+                type="button"
+                aria-pressed={zone === "cebu"}
+                className={zone === "cebu" ? "selected" : ""}
+                onClick={() => {
+                  setZone("cebu");
+                  setSubmitError("");
+                }}
+              >
+                <strong>Mainland Cebu</strong>
+                <small>Terminal / hub pickup · {CEBU_MIN_KG} kg min</small>
+              </button>
+            </div>
+          </div>
+
+          {zone === "island" ? (
+            <>
+              <Field
+                label="Municipality (Mainland Bantayan Island) *"
+                id="island-town"
+                hint="Delivered free from Baod, Bantayan across Bantayan, Santa Fe & Madridejos."
+              >
+                <select
+                  id="island-town"
+                  value={islandTown}
+                  onChange={(event) =>
+                    setIslandTown(event.target.value as IslandTown)
+                  }
+                >
+                  {islandTowns.map((town) => (
+                    <option key={town} value={town}>
+                      {town}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field
+                label="Barangay & landmark *"
+                id="guest-location"
+                hint="Mainland island only (offshore islets are outside online coverage)."
+              >
+                <input
+                  id="guest-location"
+                  required
+                  maxLength={160}
+                  value={locationDetail}
+                  onChange={(event) => setLocationDetail(event.target.value)}
+                  placeholder="e.g. Poblacion, near municipal plaza"
+                />
+              </Field>
+            </>
+          ) : (
+            <>
+              <Field
+                label="Cebu cargo pickup point *"
+                id="cebu-channel"
+                hint="Ceres Bus is recommended for fresh/frozen; trucking (~1 day) is best for dried."
+              >
+                <select
+                  id="cebu-channel"
+                  value={cebuChannel}
+                  onChange={(event) =>
+                    setCebuChannel(event.target.value as CebuChannel)
+                  }
+                >
+                  {cebuChannels.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field
+                label="Receiver city or pickup note (optional)"
+                id="guest-location"
+              >
+                <input
+                  id="guest-location"
+                  maxLength={140}
+                  value={locationDetail}
+                  onChange={(event) => setLocationDetail(event.target.value)}
+                  placeholder="e.g. Cebu City · morning Ceres trip preferred"
+                />
+              </Field>
+            </>
+          )}
+
           <Field
-            label="Delivery location *"
-            id="guest-location"
-            hint="City / municipality and province are enough for a first quote."
-          >
-            <input
-              id="guest-location"
-              name="location"
-              autoComplete="address-level2"
-              required
-              maxLength={200}
-              placeholder="e.g. Cebu City, Cebu"
-            />
-          </Field>
-          <Field
-            label="Preferred delivery date"
+            label="Preferred delivery / pickup date"
             id="guest-date"
             hint="Optional · schedule is confirmed in your quotation."
           >
@@ -328,11 +474,32 @@ export function QuoteRequestForm() {
               placeholder="Packaging, delivery instructions, or special requests…"
             />
           </Field>
+
+          {items.length > 0 && !minCheck.ok && (
+            <p className="form-error" role="alert" style={{ marginTop: 18 }}>
+              Minimum order for{" "}
+              {zone === "island"
+                ? `Bantayan Island free delivery is ${ISLAND_MIN_KG} kg`
+                : `Mainland Cebu terminal pickup is ${CEBU_MIN_KG} kg`}{" "}
+              (currently {minCheck.totalKg} kg in your selection). Increase
+              quantities on the left to continue.
+            </p>
+          )}
+
           <label className="checkbox-label">
             <input type="checkbox" name="terms_accepted" value="1" required />
             <span>
-              I understand prices and availability will be confirmed before I
-              make any commitment.
+              I understand prices and availability are confirmed per request,
+              and I agree to the{" "}
+              <Link
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-policy-link"
+              >
+                Terms, Delivery / Pickup Rules &amp; Privacy Policy
+              </Link>
+              .
             </span>
           </label>
           {submitError && (
@@ -343,7 +510,13 @@ export function QuoteRequestForm() {
           <button
             type="submit"
             className="button button-primary full-width"
-            disabled={!ready || !items.length || basketOverLimit || submitting}
+            disabled={
+              !ready ||
+              !items.length ||
+              basketOverLimit ||
+              !minCheck.ok ||
+              submitting
+            }
           >
             {submitting ? "Sending request…" : "Send quote request"}
             {!submitting && <Icon name="arrow" size={18} />}

@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata(
   "How it works",
-  "From a guest quote request to supplier sourcing, quotation approval, deposit, and delivery. Understand how IslaSource Seafoods sources on demand without keeping its own stocks.",
+  "From a guest quote request to supplier sourcing, quotation approval, full QR Ph payment, and Cebu terminal pickup. Understand how IslaSource Seafoods sources on demand.",
   "/how-it-works",
 );
 const steps = [
@@ -55,8 +55,8 @@ const questions = [
     a: "Yes. Add a custom item on the quote request page, including the quantity and any preferred size or preparation. We’ll ask our partners and confirm whether it can be sourced.",
   },
   {
-    q: "Where do you deliver?",
-    a: "Tell us your city or municipality and province when you request. Delivery coverage, the fee, and a suitable schedule are confirmed in your personal quotation before you approve or pay.",
+    q: "Where do you deliver and what are the minimum orders?",
+    a: "Within mainland Bantayan Island (Bantayan, Santa Fe, and Madridejos), we offer Free direct delivery from Baod, Bantayan with a 3 kg minimum order. For mainland Cebu (5 kg minimum order), fresh and frozen seafood are sent via Ceres Bus Cargo for fast customer pickup at Cebu North Bus Terminal, while dried seafood (buwad) can be sent via island trucking such as Jessamae Trucking (~1 day transit) for customer pickup at their Cebu hub.",
   },
   {
     q: "When do I pay?",

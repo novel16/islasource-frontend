@@ -8,6 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/seafood",
     "/how-it-works",
     "/about",
+    "/terms",
   ].map((path) => ({
     url: `${siteUrl}${path}`,
     changeFrequency: "weekly",

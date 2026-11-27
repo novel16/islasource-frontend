@@ -71,14 +71,16 @@ export function Field({
   id,
   children,
   hint,
+  className = "",
 }: {
   label: string;
   id: string;
   children: ReactNode;
   hint?: string;
+  className?: string;
 }) {
   return (
-    <div className="field">
+    <div className={`field${className ? ` ${className}` : ""}`}>
       <label htmlFor={id}>{label}</label>
       {children}
       {hint && <span className="field-hint">{hint}</span>}

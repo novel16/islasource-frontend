@@ -30,6 +30,7 @@ export function SiteFooter() {
             <h3>Let’s get started</h3>
             <Link href="/request-quote">Request a quote</Link>
             <Link href="/how-it-works#questions">Common questions</Link>
+            <Link href="/terms">Terms &amp; privacy policy</Link>
           </div>
           <div className="footer-note">
             <p>
@@ -56,8 +57,8 @@ export function SiteFooter() {
           <span>
             © 2026 IslaSource Seafoods. Your connection to the source.
           </span>
-          <span>Sourced on request · Quoted before commitment</span>
-          <span>Guest quote requests</span>
+          <span>Bantayan Island &amp; Cebu · Sourced on request</span>
+          <Link href="/terms">Terms, Pickup &amp; Privacy</Link>
         </div>
       </div>
     </footer>

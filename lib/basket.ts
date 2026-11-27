@@ -20,6 +20,14 @@ export type Guest = {
 };
 
 export const MAX_BASKET_ITEMS = 10;
+export const ISLAND_MIN_KG = 3;
+export const CEBU_MIN_KG = 5;
+
+export type DeliveryZone = "island" | "cebu";
+export type IslandTown = "Bantayan" | "Santa Fe" | "Madridejos";
+export type CebuChannel =
+  | "Ceres Bus — Cebu North Bus Terminal"
+  | "Jessamae / Island Trucking Hub";
 
 export function canAddBasketItem(basket: BasketItem[], id: string): boolean {
   return (
@@ -42,6 +50,55 @@ export function money(centavos: number): string {
     currency: "PHP",
     minimumFractionDigits: 2,
   }).format(centavos / 100);
+}
+
+export function deliveryLabel(centavos: number): string {
+  return centavos <= 0 ? "Free" : money(centavos);
+}
+
+export function checkZoneMinimum(
+  items: Pick<BasketItem, "quantity" | "unit">[],
+  zone: DeliveryZone,
+): {
+  ok: boolean;
+  totalKg: number;
+  requiredKg: number;
+  hasNonKg: boolean;
+} {
+  const requiredKg = zone === "island" ? ISLAND_MIN_KG : CEBU_MIN_KG;
+  let milliKg = 0;
+  let hasNonKg = false;
+
+  for (const item of items) {
+    if (item.unit === "kg") {
+      milliKg += Math.round(item.quantity * 1000);
+    } else {
+      hasNonKg = true;
+    }
+  }
+
+  const totalKg = milliKg / 1000;
+  const ok =
+    items.length === 0 ? false : hasNonKg || milliKg >= requiredKg * 1000;
+
+  return { ok, totalKg, requiredKg, hasNonKg };
+}
+
+export function formatDeliveryLocation(input: {
+  zone: DeliveryZone;
+  islandTown: IslandTown;
+  detail: string;
+  cebuChannel: CebuChannel;
+}): string {
+  const cleanDetail = input.detail.trim();
+  if (input.zone === "island") {
+    return cleanDetail
+      ? `Bantayan Island (${input.islandTown}) — ${cleanDetail}`
+      : "";
+  }
+  return cleanDetail
+    ? `Mainland Cebu (${input.cebuChannel}) — ${cleanDetail}`
+    : `Mainland Cebu (${input.cebuChannel})`;
 }
 
 export function parseBasket(raw: string): BasketItem[] {

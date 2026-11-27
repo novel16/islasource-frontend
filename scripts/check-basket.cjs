@@ -16,7 +16,12 @@ require.extensions[".ts"] = (module, filename) => {
 
 const {
   MAX_BASKET_ITEMS,
+  ISLAND_MIN_KG,
+  CEBU_MIN_KG,
   canAddBasketItem,
+  checkZoneMinimum,
+  deliveryLabel,
+  formatDeliveryLocation,
   validQuantity,
   money,
   parseBasket,
@@ -76,6 +81,102 @@ assert.equal(
     .readFileSync(path.join(__dirname, "../components/site-footer.tsx"), "utf8")
     .includes("Request tracking is being prepared"),
   false,
+);
+
+const termsPagePath = path.join(__dirname, "../app/terms/page.tsx");
+assert.equal(fs.existsSync(termsPagePath), true);
+const termsSource = fs.readFileSync(termsPagePath, "utf8");
+assert.equal(termsSource.includes("North Bus Terminal"), true);
+assert.equal(termsSource.includes("Jessamae"), true);
+assert.equal(termsSource.includes('"#payments-refunds"'), true);
+assert.equal(termsSource.includes('"#privacy"'), true);
+
+assert.equal(
+  fs
+    .readFileSync(path.join(__dirname, "../components/site-footer.tsx"), "utf8")
+    .includes('href="/terms"'),
+  true,
+);
+assert.equal(
+  fs
+    .readFileSync(path.join(__dirname, "../components/site-header.tsx"), "utf8")
+    .includes('"/terms"'),
+  false,
+);
+assert.equal(
+  fs
+    .readFileSync(
+      path.join(__dirname, "../components/quote-request-form.tsx"),
+      "utf8",
+    )
+    .includes('href="/terms"'),
+  true,
+);
+assert.equal(
+  fs
+    .readFileSync(path.join(__dirname, "../components/order-view.tsx"), "utf8")
+    .includes("agreedToPayTerms"),
+  true,
+);
+
+assert.equal(ISLAND_MIN_KG, 3);
+assert.equal(CEBU_MIN_KG, 5);
+assert.equal(deliveryLabel(0), "Free");
+assert.match(deliveryLabel(15000), /150\.00/);
+
+assert.deepEqual(
+  checkZoneMinimum([{ quantity: 2.5, unit: "kg" }], "island"),
+  { ok: false, totalKg: 2.5, requiredKg: 3, hasNonKg: false },
+);
+assert.deepEqual(
+  checkZoneMinimum(
+    [
+      { quantity: 1.2, unit: "kg" },
+      { quantity: 1.8, unit: "kg" },
+    ],
+    "island",
+  ),
+  { ok: true, totalKg: 3, requiredKg: 3, hasNonKg: false },
+);
+assert.deepEqual(
+  checkZoneMinimum([{ quantity: 4.5, unit: "kg" }], "cebu"),
+  { ok: false, totalKg: 4.5, requiredKg: 5, hasNonKg: false },
+);
+assert.deepEqual(
+  checkZoneMinimum([{ quantity: 5, unit: "kg" }], "cebu"),
+  { ok: true, totalKg: 5, requiredKg: 5, hasNonKg: false },
+);
+assert.deepEqual(
+  checkZoneMinimum([{ quantity: 2, unit: "pack" }], "cebu"),
+  { ok: true, totalKg: 0, requiredKg: 5, hasNonKg: true },
+);
+
+assert.equal(
+  formatDeliveryLocation({
+    zone: "island",
+    islandTown: "Madridejos",
+    detail: "  Poblacion, near plaza  ",
+    cebuChannel: "Ceres Bus — Cebu North Bus Terminal",
+  }),
+  "Bantayan Island (Madridejos) — Poblacion, near plaza",
+);
+assert.equal(
+  formatDeliveryLocation({
+    zone: "island",
+    islandTown: "Bantayan",
+    detail: "   ",
+    cebuChannel: "Ceres Bus — Cebu North Bus Terminal",
+  }),
+  "",
+);
+assert.equal(
+  formatDeliveryLocation({
+    zone: "cebu",
+    islandTown: "Bantayan",
+    detail: "",
+    cebuChannel: "Ceres Bus — Cebu North Bus Terminal",
+  }),
+  "Mainland Cebu (Ceres Bus — Cebu North Bus Terminal)",
 );
 
 assert.equal(isLiveQuoteToken("a".repeat(64)), true);

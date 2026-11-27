@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
-import { money } from "@/lib/basket";
+import { deliveryLabel, money } from "@/lib/basket";
 import {
   getPublicOrder,
   isLiveOrderToken,
@@ -109,6 +110,7 @@ function LiveOrderView({ token }: { token: string }) {
 
   const [redirecting, setRedirecting] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [agreedToPayTerms, setAgreedToPayTerms] = useState(false);
   const [actionError, setActionError] = useState("");
   const [messageBody, setMessageBody] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
@@ -160,7 +162,7 @@ function LiveOrderView({ token }: { token: string }) {
   }
 
   async function handlePayNow() {
-    if (!order || redirecting || verifying) return;
+    if (!order || !agreedToPayTerms || redirecting || verifying) return;
     setRedirecting(true);
     setActionError("");
     try {
@@ -428,7 +430,7 @@ function LiveOrderView({ token }: { token: string }) {
               </div>
               <div>
                 <span>Delivery to {order.delivery_location}</span>
-                <span>{money(order.delivery_centavos)}</span>
+                <span>{deliveryLabel(order.delivery_centavos)}</span>
               </div>
               <div className="grand-total">
                 <strong>{isPaid ? "Total paid (QR Ph)" : "Total amount due"}</strong>
@@ -567,10 +569,34 @@ function LiveOrderView({ token }: { token: string }) {
                     {actionError}
                   </p>
                 )}
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={agreedToPayTerms}
+                    disabled={redirecting || verifying}
+                    onChange={(event) => {
+                      setAgreedToPayTerms(event.target.checked);
+                      if (actionError) setActionError("");
+                    }}
+                  />
+                  <span>
+                    I confirm timely pickup at Cebu North Bus Terminal /
+                    trucking hub and agree to the{" "}
+                    <Link
+                      href="/terms#payments-refunds"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-policy-link"
+                    >
+                      100% QR Ph Payment &amp; Perishable No-Refund Policy
+                    </Link>{" "}
+                    once sourced.
+                  </span>
+                </label>
                 <button
                   type="button"
                   className="button button-primary full-width"
-                  disabled={redirecting || verifying}
+                  disabled={!agreedToPayTerms || redirecting || verifying}
                   onClick={() => void handlePayNow()}
                 >
                   {redirecting
