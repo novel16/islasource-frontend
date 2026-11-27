@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- Standalone Node check using the existing TypeScript compiler, no test dependency. */
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const path = require("node:path");
 const ts = require("typescript");
 
 require.extensions[".ts"] = (module, filename) => {
@@ -66,6 +67,16 @@ assert.equal(
   "/quote-requests/schedule/abc",
 );
 assert.equal(apiEndpoints.orderMessages("xyz"), "/orders/xyz/messages");
+assert.equal(
+  fs.existsSync(path.join(__dirname, "../app/track/page.tsx")),
+  false,
+);
+assert.equal(
+  fs
+    .readFileSync(path.join(__dirname, "../components/site-footer.tsx"), "utf8")
+    .includes("Request tracking is being prepared"),
+  false,
+);
 
 assert.equal(isLiveQuoteToken("a".repeat(64)), true);
 assert.equal(

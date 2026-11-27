@@ -7,9 +7,8 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: [
         "/quote/",
-        "/payment/",
         "/order/",
-        "/track",
+        "/request-update/",
         "/request-quote",
         "/request-received",
       ],

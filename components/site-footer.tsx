@@ -29,7 +29,6 @@ export function SiteFooter() {
           <div>
             <h3>Let’s get started</h3>
             <Link href="/request-quote">Request a quote</Link>
-            <span>Request tracking is being prepared</span>
             <Link href="/how-it-works#questions">Common questions</Link>
           </div>
           <div className="footer-note">
