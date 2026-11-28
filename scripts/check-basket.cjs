@@ -31,6 +31,10 @@ const {
   PUBLIC_CATALOG_PER_PAGE,
   sendGuestQuoteCode,
 } = require("../lib/products.ts");
+const {
+  defaultPublicSiteSettings,
+  siteImageSrc,
+} = require("../lib/site-settings.ts");
 const { isLiveQuoteToken } = require("../lib/quotations.ts");
 const { isLiveOrderToken } = require("../lib/orders.ts");
 
@@ -205,6 +209,22 @@ assert.equal(quoteFormSource.includes('name="contact_fax_ext"'), true);
 assert.equal(quoteFormSource.includes('name="website"'), false);
 assert.equal(quoteFormSource.includes("mountedAtRef"), false);
 assert.equal(quoteFormSource.includes("Change email"), true);
+
+assert.equal(apiEndpoints.siteSettings, "/site-settings");
+assert.equal(defaultPublicSiteSettings.island_min_kg, 3);
+assert.equal(defaultPublicSiteSettings.cebu_min_kg, 5);
+assert.equal(siteImageSrc("/images/hero-seafood.jpg"), "/images/hero-seafood.jpg");
+assert.match(
+  siteImageSrc("/storage/products/hero_1.jpg"),
+  /\/storage\/products\/hero_1\.jpg$/,
+);
+assert.deepEqual(
+  checkZoneMinimum([{ quantity: 3.5, unit: "kg" }], "island", {
+    islandMinKg: 4,
+    cebuMinKg: 6,
+  }),
+  { ok: false, totalKg: 3.5, requiredKg: 4, hasNonKg: false },
+);
 
 console.log(
   "Storefront checks passed: basket storage, quantity bounds, 10-item cap, live quote/order tokens.",

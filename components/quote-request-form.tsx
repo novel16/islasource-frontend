@@ -20,6 +20,7 @@ import {
   sendGuestQuoteCode,
   submitGuestQuote,
 } from "@/lib/products";
+import { getPublicSiteSettings } from "@/lib/site-settings";
 import { useBasket } from "./basket-provider";
 import { ButtonLink, Field } from "./ui/shared";
 import { Icon } from "./ui/icon";
@@ -68,10 +69,28 @@ export function QuoteRequestForm() {
   const [otpNotice, setOtpNotice] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [islandMinKg, setIslandMinKg] = useState(ISLAND_MIN_KG);
+  const [cebuMinKg, setCebuMinKg] = useState(CEBU_MIN_KG);
+  const [advisoryText, setAdvisoryText] = useState("");
 
   const basketOverLimit = items.length > MAX_BASKET_ITEMS;
   const basketFull = items.length >= MAX_BASKET_ITEMS;
-  const minCheck = checkZoneMinimum(items, zone);
+  const minCheck = checkZoneMinimum(items, zone, {
+    islandMinKg,
+    cebuMinKg,
+  });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void getPublicSiteSettings(controller.signal).then((cfg) => {
+      if (cfg.island_min_kg > 0) setIslandMinKg(cfg.island_min_kg);
+      if (cfg.cebu_min_kg > 0) setCebuMinKg(cfg.cebu_min_kg);
+      if (cfg.homepage.advisory_enabled && cfg.homepage.advisory_text.trim()) {
+        setAdvisoryText(cfg.homepage.advisory_text.trim());
+      }
+    });
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     if (cooldownSeconds <= 0) return;
@@ -272,6 +291,12 @@ export function QuoteRequestForm() {
 
   return (
     <>
+      {advisoryText && (
+        <div className="island-advisory-banner" role="status" style={{ marginBottom: 22 }}>
+          <Icon name="shield" size={16} />
+          <span>{advisoryText}</span>
+        </div>
+      )}
       <div className="request-layout">
         <div>
           <div className="panel basket-panel">
@@ -364,8 +389,8 @@ export function QuoteRequestForm() {
               <Icon name="shield" size={16} />
               <span>
                 Bantayan Island direct delivery is <strong>Free</strong> (
-                {ISLAND_MIN_KG} kg min) · Mainland Cebu terminal pickup starts
-                at {CEBU_MIN_KG} kg min.
+                {islandMinKg} kg min) · Mainland Cebu terminal pickup starts
+                at {cebuMinKg} kg min.
               </span>
             </p>
           </div>
@@ -533,7 +558,7 @@ export function QuoteRequestForm() {
                   }}
                 >
                   <strong>Within Bantayan Island</strong>
-                  <small>Free direct delivery · {ISLAND_MIN_KG} kg min</small>
+                  <small>Free direct delivery · {islandMinKg} kg min</small>
                 </button>
                 <button
                   type="button"
@@ -545,7 +570,7 @@ export function QuoteRequestForm() {
                   }}
                 >
                   <strong>Mainland Cebu</strong>
-                  <small>Terminal / hub pickup · {CEBU_MIN_KG} kg min</small>
+                  <small>Terminal / hub pickup · {cebuMinKg} kg min</small>
                 </button>
               </div>
             </div>
@@ -651,8 +676,8 @@ export function QuoteRequestForm() {
               <p className="form-error" role="alert" style={{ marginTop: 18 }}>
                 Minimum order for{" "}
                 {zone === "island"
-                  ? `Bantayan Island free delivery is ${ISLAND_MIN_KG} kg`
-                  : `Mainland Cebu terminal pickup is ${CEBU_MIN_KG} kg`}{" "}
+                  ? `Bantayan Island free delivery is ${islandMinKg} kg`
+                  : `Mainland Cebu terminal pickup is ${cebuMinKg} kg`}{" "}
                 (currently {minCheck.totalKg} kg in your selection). Increase
                 quantities on the left to continue.
               </p>
@@ -748,8 +773,8 @@ export function QuoteRequestForm() {
               <p className="form-error" role="alert" style={{ marginTop: 18 }}>
                 Minimum order for{" "}
                 {zone === "island"
-                  ? `Bantayan Island free delivery is ${ISLAND_MIN_KG} kg`
-                  : `Mainland Cebu terminal pickup is ${CEBU_MIN_KG} kg`}{" "}
+                  ? `Bantayan Island free delivery is ${islandMinKg} kg`
+                  : `Mainland Cebu terminal pickup is ${cebuMinKg} kg`}{" "}
                 (currently {minCheck.totalKg} kg in your selection). Increase
                 quantities on the left to continue.
               </p>

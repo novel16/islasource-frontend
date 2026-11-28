@@ -1,8 +1,35 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import {
+  defaultPublicSiteSettings,
+  getPublicSiteSettings,
+} from "@/lib/site-settings";
 import { Brand } from "./brand";
 import { Icon } from "./ui/icon";
 
 export function SiteFooter() {
+  const [info, setInfo] = useState({
+    business_name: defaultPublicSiteSettings.business_name,
+    business_address: defaultPublicSiteSettings.business_address,
+    contact_email: defaultPublicSiteSettings.contact_email,
+    contact_phone: defaultPublicSiteSettings.contact_phone,
+  });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void getPublicSiteSettings(controller.signal).then((cfg) => {
+      setInfo({
+        business_name: cfg.business_name,
+        business_address: cfg.business_address,
+        contact_email: cfg.contact_email,
+        contact_phone: cfg.contact_phone,
+      });
+    });
+    return () => controller.abort();
+  }, []);
+
   return (
     <footer className="site-footer">
       <div className="shell">
@@ -16,8 +43,14 @@ export function SiteFooter() {
             </p>
             <span className="footer-location">
               <Icon name="pin" size={15} />
-              Bantayan Island, Cebu, Philippines
+              {info.business_address}
             </span>
+            {info.contact_phone && (
+              <span className="footer-location" style={{ marginTop: 6 }}>
+                <Icon name="mail" size={14} />
+                {info.contact_phone} · {info.contact_email}
+              </span>
+            )}
           </div>
           <div>
             <h3>Explore</h3>
@@ -55,7 +88,7 @@ export function SiteFooter() {
         </div>
         <div className="footer-bottom">
           <span>
-            © 2026 IslaSource Seafoods. Your connection to the source.
+            © 2026 {info.business_name}. Your connection to the source.
           </span>
           <span>Bantayan Island &amp; Cebu · Sourced on request</span>
           <Link href="/terms">Terms, Pickup &amp; Privacy</Link>

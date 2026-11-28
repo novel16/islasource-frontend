@@ -7,6 +7,7 @@ export const API_BASE_URL = (
 export const API_V1_URL = `${API_BASE_URL}/api/v1`;
 
 export const apiEndpoints = {
+  siteSettings: "/site-settings",
   seafood: "/seafood",
   seafoodDetail: (slug: string) => `/seafood/${encodeURIComponent(slug)}`,
   quoteRequests: "/quote-requests",

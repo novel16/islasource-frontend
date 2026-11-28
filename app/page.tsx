@@ -1,8 +1,14 @@
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 import { connection } from "next/server";
 import Image from "next/image";
 import { getPublicProducts, type Product } from "@/lib/products";
 import { pageMetadata } from "@/lib/seo";
+import {
+  defaultPublicSiteSettings,
+  getPublicSiteSettings,
+  siteImageSrc,
+  type HomepageSettings,
+} from "@/lib/site-settings";
 import { ProductCard } from "@/components/product-card";
 import { ButtonLink, Eyebrow } from "@/components/ui/shared";
 import { Icon } from "@/components/ui/icon";
@@ -17,24 +23,62 @@ export const metadata = {
   title: { absolute: "IslaSource Seafoods | Seafood Sourcing & Resale" },
 };
 
-export default function Home() {
+function renderHeroHeadline(headline: string) {
+  const lines = headline
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (!lines.length) return "Island seafood.";
+
+  return lines.map((line, index) => {
+    const isLast = index === lines.length - 1 && lines.length > 1;
+    return (
+      <Fragment key={`${line}-${index}`}>
+        {index > 0 && <br />}
+        {isLast ? <em>{line}</em> : line}
+      </Fragment>
+    );
+  });
+}
+
+function renderMultilineHeading(heading: string) {
+  const lines = heading
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return lines.map((line, index) => (
+    <Fragment key={`${line}-${index}`}>
+      {index > 0 && <br />}
+      {line}
+    </Fragment>
+  ));
+}
+
+function HomeSections({
+  homepage,
+  featuredSlot,
+}: {
+  homepage: HomepageSettings;
+  featuredSlot: React.ReactNode;
+}) {
+  const heroSrc = siteImageSrc(homepage.hero_image);
+  const storySrc = siteImageSrc(homepage.story_image);
+
   return (
     <>
+      {homepage.advisory_enabled && homepage.advisory_text.trim() && (
+        <div className="shell" style={{ paddingTop: 18 }}>
+          <div className="island-advisory-banner" role="status">
+            <Icon name="shield" size={16} />
+            <span>{homepage.advisory_text.trim()}</span>
+          </div>
+        </div>
+      )}
       <section className="hero shell">
         <div className="hero-copy">
-          <Eyebrow>SEAFOOD SOURCING & RESALE</Eyebrow>
-          <h1>
-            Island seafood.
-            <br />
-            Sourced
-            <br />
-            <em>for you.</em>
-          </h1>
-          <p>
-            Meet IslaSource Seafoods. We source directly from local fishermen
-            and seafood suppliers after your quote request, then arrange your
-            order and delivery. Island connections, with fair pricing in mind.
-          </p>
+          <Eyebrow>{homepage.hero_eyebrow}</Eyebrow>
+          <h1>{renderHeroHeadline(homepage.hero_headline)}</h1>
+          <p>{homepage.hero_subtext}</p>
           <div className="button-row">
             <ButtonLink href="/seafood" arrow>
               Explore our seafood
@@ -54,15 +98,16 @@ export default function Home() {
         <div className="hero-visual">
           <div className="hero-image">
             <Image
-              src="/images/hero-seafood.jpg"
-              alt="Fresh whole fish displayed on a bed of ice"
+              src={heroSrc}
+              alt={homepage.hero_image_alt}
               fill
               priority
+              unoptimized={/^https?:\/\//i.test(heroSrc)}
               sizes="(max-width: 760px) 90vw, 46vw"
             />
-            <span className="photo-caption">
-              The good things come from the sea.
-            </span>
+            {homepage.hero_caption && (
+              <span className="photo-caption">{homepage.hero_caption}</span>
+            )}
           </div>
           <div className="island-stamp">
             <WaveMark size={36} />
@@ -109,11 +154,7 @@ export default function Home() {
             View all seafood
           </ButtonLink>
         </div>
-        <div className="product-grid">
-          <Suspense fallback={<p className="loading-text">Loading published seafood…</p>}>
-            <FeaturedProducts />
-          </Suspense>
-        </div>
+        <div className="product-grid">{featuredSlot}</div>
         <p className="catalog-disclaimer">
           <span />
           Every catch has its season. Prices and availability are confirmed
@@ -182,9 +223,10 @@ export default function Home() {
       <section className="island-section shell">
         <div className="island-story-image">
           <Image
-            src="/images/island.jpg"
-            alt="A wooden boardwalk through a green mangrove forest on Bantayan"
+            src={storySrc}
+            alt={homepage.story_image_alt}
             fill
+            unoptimized={/^https?:\/\//i.test(storySrc)}
             sizes="(max-width: 760px) 90vw, 46vw"
           />
           <span className="image-label">
@@ -194,26 +236,10 @@ export default function Home() {
         </div>
         <div className="island-story-copy">
           <Eyebrow>ABOUT ISLASOURCE SEAFOODS</Eyebrow>
-          <h2>
-            Your connection
-            <br />
-            to the source.
-          </h2>
-          <p>
-            We’re a seafood sourcing and resale business based in Bantayan
-            Island, Cebu. We work directly with local fishermen and suppliers to
-            find seafood for home cooks, restaurants, and resellers.
-          </p>
-          <p>
-            We don’t keep our own seafood inventory. After your quote request,
-            we check supplier availability, product condition, and current
-            pricing. You review the details before we procure your order.
-          </p>
-          <p>
-            Buying to order and working directly with suppliers helps us aim for
-            affordable, competitive quotes. Final prices and supply are
-            confirmed for each request.
-          </p>
+          <h2>{renderMultilineHeading(homepage.story_heading)}</h2>
+          {homepage.story_paragraphs.map((paragraph, index) => (
+            <p key={`story-p-${index}`}>{paragraph}</p>
+          ))}
           <ButtonLink href="/about" variant="text" arrow>
             Get to know IslaSource
           </ButtonLink>
@@ -246,19 +272,48 @@ export default function Home() {
   );
 }
 
-async function FeaturedProducts() {
+async function LiveHome() {
   await connection();
-  let products: Product[] | null = null;
-  try {
-    products = (await getPublicProducts({ perPage: 4 })).data;
-  } catch {
-    products = null;
-  }
-  if (products === null)
-    return <p className="loading-text">The seafood catalog is temporarily unavailable.</p>;
-  if (!products.length)
-    return <p className="loading-text">Published seafood will appear here when available.</p>;
-  return products.map((product) => (
-    <ProductCard key={product.id} product={product} />
-  ));
+  const [settings, productsResult] = await Promise.all([
+    getPublicSiteSettings(),
+    getPublicProducts({ perPage: 4 }).catch(() => null),
+  ]);
+
+  const products: Product[] | null = productsResult
+    ? productsResult.data
+    : null;
+
+  const featuredSlot =
+    products === null ? (
+      <p className="loading-text">
+        The seafood catalog is temporarily unavailable.
+      </p>
+    ) : !products.length ? (
+      <p className="loading-text">
+        Published seafood will appear here when available.
+      </p>
+    ) : (
+      products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))
+    );
+
+  return (
+    <HomeSections homepage={settings.homepage} featuredSlot={featuredSlot} />
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense
+      fallback={
+        <HomeSections
+          homepage={defaultPublicSiteSettings.homepage}
+          featuredSlot={<p className="loading-text">Loading published seafood…</p>}
+        />
+      }
+    >
+      <LiveHome />
+    </Suspense>
+  );
 }

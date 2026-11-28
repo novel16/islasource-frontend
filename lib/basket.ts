@@ -59,13 +59,22 @@ export function deliveryLabel(centavos: number): string {
 export function checkZoneMinimum(
   items: Pick<BasketItem, "quantity" | "unit">[],
   zone: DeliveryZone,
+  mins?: { islandMinKg?: number; cebuMinKg?: number },
 ): {
   ok: boolean;
   totalKg: number;
   requiredKg: number;
   hasNonKg: boolean;
 } {
-  const requiredKg = zone === "island" ? ISLAND_MIN_KG : CEBU_MIN_KG;
+  const islandMin =
+    typeof mins?.islandMinKg === "number" && mins.islandMinKg > 0
+      ? mins.islandMinKg
+      : ISLAND_MIN_KG;
+  const cebuMin =
+    typeof mins?.cebuMinKg === "number" && mins.cebuMinKg > 0
+      ? mins.cebuMinKg
+      : CEBU_MIN_KG;
+  const requiredKg = zone === "island" ? islandMin : cebuMin;
   let milliKg = 0;
   let hasNonKg = false;
 
