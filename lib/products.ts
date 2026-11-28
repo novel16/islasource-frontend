@@ -13,6 +13,16 @@ export type ProductCategory =
   | "Frozen seafood";
 export type ProductUnit = "kg" | "pack" | "piece";
 
+export type ProductGalleryItem = {
+  image: string;
+  image_alt: string;
+};
+
+export type CarouselSlide = {
+  src: string;
+  alt: string;
+};
+
 export type Product = {
   id: number;
   name: string;
@@ -27,6 +37,7 @@ export type Product = {
   og_description: string;
   image: string;
   image_alt: string;
+  gallery_images?: ProductGalleryItem[];
   og_image: string;
   canonical_url: string;
   indexable: boolean;
@@ -95,6 +106,21 @@ export function productImageSrc(path: string): string {
     return new URL(normalized, new URL(API_BASE_URL).origin).toString();
   }
   return "/images/squid.jpg";
+}
+
+export function buildProductCarouselSlides(
+  product: Pick<Product, "name" | "image" | "image_alt" | "gallery_images">,
+): CarouselSlide[] {
+  const cover: CarouselSlide = {
+    src: productImageSrc(product.image),
+    alt: product.image_alt?.trim() || product.name,
+  };
+  const extras = (product.gallery_images ?? []).slice(0, 7).map((entry) => ({
+    src: productImageSrc(entry.image),
+    alt: entry.image_alt?.trim() || product.name,
+  }));
+
+  return [cover, ...extras];
 }
 
 export async function getPublicProducts(

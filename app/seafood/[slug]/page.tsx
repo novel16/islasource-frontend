@@ -1,9 +1,9 @@
-import Image from "next/image";
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import {
+  buildProductCarouselSlides,
   getPublicProduct,
   getPublicProducts,
   productImageSrc,
@@ -11,7 +11,8 @@ import {
   type Product,
 } from "@/lib/products";
 import { pageMetadata, siteUrl } from "@/lib/seo";
-import { Badge, Breadcrumb, ButtonLink, Eyebrow } from "@/components/ui/shared";
+import { Breadcrumb, ButtonLink, Eyebrow } from "@/components/ui/shared";
+import { ProductGalleryCarousel } from "@/components/product-gallery-carousel";
 import { ProductRequest } from "@/components/product-request";
 import { ProductCard } from "@/components/product-card";
 import { Icon } from "@/components/ui/icon";
@@ -115,7 +116,7 @@ async function ProductDetails({
     related = [];
   }
 
-  const image = productImageSrc(product.image);
+  const slides = buildProductCarouselSlides(product);
   return (
     <div className="shell page-content">
       <Breadcrumb
@@ -123,20 +124,10 @@ async function ProductDetails({
         parent={{ href: "/seafood", label: "Our seafood" }}
       />
       <div className="product-detail">
-        <div className="product-detail-image">
-          <Image
-            src={image}
-            alt={product.image_alt}
-            fill
-            priority
-            unoptimized={/^https?:\/\//i.test(image)}
-            sizes="(max-width: 760px) 90vw, 47vw"
-          />
-          <Badge>{product.category} · Bantayan Island</Badge>
-          <span className="detail-image-note">
-            Representative image · exact catch confirmed in your quote
-          </span>
-        </div>
+        <ProductGalleryCarousel
+          slides={slides}
+          categoryBadge={`${product.category} · Bantayan Island`}
+        />
         <div className="product-detail-copy">
           <Eyebrow>{product.category.toUpperCase()} · ISLAND SELECTION</Eyebrow>
           <h1>{product.name}</h1>

@@ -29,6 +29,7 @@ const {
 const { API_BASE_URL, API_V1_URL, apiEndpoints } = require("../lib/api.ts");
 const {
   PUBLIC_CATALOG_PER_PAGE,
+  buildProductCarouselSlides,
   sendGuestQuoteCode,
 } = require("../lib/products.ts");
 const {
@@ -225,6 +226,26 @@ assert.deepEqual(
   }),
   { ok: false, totalKg: 3.5, requiredKg: 4, hasNonKg: false },
 );
+
+const singleSlides = buildProductCarouselSlides({
+  name: "Gahot",
+  image: "/images/dried-fish.jpg",
+  image_alt: "Cover",
+});
+assert.equal(singleSlides.length, 1);
+
+const multiSlides = buildProductCarouselSlides({
+  name: "Gahot",
+  image: "/images/dried-fish.jpg",
+  image_alt: "Cover",
+  gallery_images: Array.from({ length: 9 }, (_, idx) => ({
+    image: `/storage/products/extra_${idx}.jpg`,
+    image_alt: "",
+  })),
+});
+assert.equal(multiSlides.length, 8);
+assert.equal(multiSlides[0].src, "/images/dried-fish.jpg");
+assert.equal(multiSlides[1].alt, "Gahot");
 
 console.log(
   "Storefront checks passed: basket storage, quantity bounds, 10-item cap, live quote/order tokens.",
