@@ -27,7 +27,10 @@ const {
   parseBasket,
 } = require("../lib/basket.ts");
 const { API_BASE_URL, API_V1_URL, apiEndpoints } = require("../lib/api.ts");
-const { PUBLIC_CATALOG_PER_PAGE } = require("../lib/products.ts");
+const {
+  PUBLIC_CATALOG_PER_PAGE,
+  sendGuestQuoteCode,
+} = require("../lib/products.ts");
 const { isLiveQuoteToken } = require("../lib/quotations.ts");
 const { isLiveOrderToken } = require("../lib/orders.ts");
 
@@ -190,6 +193,18 @@ assert.equal(isLiveQuoteToken("a".repeat(65)), false);
 assert.equal(isLiveQuoteToken(`${"a".repeat(63)}-`), false);
 assert.equal(isLiveOrderToken("b".repeat(64)), true);
 assert.equal(isLiveOrderToken("ORD-2026-001"), false);
+
+assert.equal(apiEndpoints.quoteRequestSendCode, "/quote-requests/send-code");
+assert.equal(typeof sendGuestQuoteCode, "function");
+const quoteFormSource = fs.readFileSync(
+  path.join(__dirname, "../components/quote-request-form.tsx"),
+  "utf8",
+);
+assert.equal(quoteFormSource.includes('autoComplete="one-time-code"'), true);
+assert.equal(quoteFormSource.includes('name="contact_fax_ext"'), true);
+assert.equal(quoteFormSource.includes('name="website"'), false);
+assert.equal(quoteFormSource.includes("mountedAtRef"), false);
+assert.equal(quoteFormSource.includes("Change email"), true);
 
 console.log(
   "Storefront checks passed: basket storage, quantity bounds, 10-item cap, live quote/order tokens.",

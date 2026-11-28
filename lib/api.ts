@@ -10,6 +10,7 @@ export const apiEndpoints = {
   seafood: "/seafood",
   seafoodDetail: (slug: string) => `/seafood/${encodeURIComponent(slug)}`,
   quoteRequests: "/quote-requests",
+  quoteRequestSendCode: "/quote-requests/send-code",
   quoteRequestSchedule: (token: string) =>
     `/quote-requests/schedule/${encodeURIComponent(token)}`,
   quoteRequestScheduleRespond: (token: string) =>

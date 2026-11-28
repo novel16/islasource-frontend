@@ -56,6 +56,8 @@ export type GuestQuotePayload = {
   requested_delivery_date: string | null;
   notes: string;
   terms_accepted: true;
+  verification_code: string;
+  website?: string;
   items: {
     product_id: number | null;
     name: string;
@@ -63,6 +65,18 @@ export type GuestQuotePayload = {
     unit: ProductUnit;
     notes: string;
   }[];
+};
+
+export type GuestQuoteCodePayload = {
+  customer_name: string;
+  email: string;
+  website: string;
+  elapsed_ms: number;
+};
+
+export type GuestQuoteCodeResponse = {
+  cooldown_seconds: number;
+  expires_in_seconds: number;
 };
 
 export type GuestQuoteResponse = { reference: string };
@@ -109,6 +123,19 @@ export async function getPublicProducts(
 export async function getPublicProduct(slug: string): Promise<Product> {
   const result = await publicApiRequest<{ data: Product }>(
     apiEndpoints.seafoodDetail(slug),
+  );
+  return result.data;
+}
+
+export async function sendGuestQuoteCode(
+  payload: GuestQuoteCodePayload,
+): Promise<GuestQuoteCodeResponse> {
+  const result = await publicApiRequest<{ data: GuestQuoteCodeResponse }>(
+    apiEndpoints.quoteRequestSendCode,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
   );
   return result.data;
 }
